@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "name": "jasper",
+  "environment": {
+    "distro": "ubuntu",
+    "version": "14.04",
+    "dependencies": ["autoconf", "pkg-config", "libtool"]
+  },
+  "software": {
+    "source": "github",
+    "user": "jasper-software",
+    "repo": "jasper"
+  },
+  "build": "autoreconf -i\nCFLAGS='-std=c99 -fsanitize=address' ./configure\nmake -j"
+}
