@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "name": "podofo",
+  "environment": {
+    "distro": "ubuntu",
+    "version": "16.04",
+    "dependencies": ["libfreetype6-dev", "libfontconfig1-dev", "pkg-config"]
+  },
+  "software": {
+    "source": "tarball",
+    "url": "https://github.com/c8ef/VulPackpages/raw/main/podofo.zip",
+    "name": "podofo"
+  },
+  "build": "mkdir build\ncd build\ncmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS='-fsanitize=address'\nmake -j"
+}

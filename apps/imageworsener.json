@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "name": "imageworsener",
+  "environment": {
+    "distro": "ubuntu",
+    "version": "14.04",
+    "dependencies": [
+      "autoconf",
+      "pkg-config",
+      "libpng-dev",
+      "pstoedit",
+      "libpstoedit-dev"
+    ]
+  },
+  "software": {
+    "source": "github",
+    "user": "jsummers",
+    "repo": "imageworsener"
+  },
+  "build": "./scripts/autogen.sh\nCFLAGS='-fsanitize=address' LDFLAGS='-lasan' ./configure\nmake -j"
+}

@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "name": "ImageMagick",
+  "environment": {
+    "distro": "ubuntu",
+    "version": "16.04",
+    "dependencies": [
+      "autoconf",
+      "pkg-config",
+      "libpng-dev",
+      "pstoedit",
+      "libpstoedit-dev",
+      "libfreetype6-dev"
+    ]
+  },
+  "software": {
+    "source": "github",
+    "user": "ImageMagick",
+    "repo": "ImageMagick"
+  },
+  "build": "./configure\nmake -j8"
+}

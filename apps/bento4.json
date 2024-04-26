@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "name": "bento4",
+  "environment": {
+    "distro": "ubuntu",
+    "version": "14.04",
+    "dependencies": ["autoconf", "pkg-config"]
+  },
+  "software": {
+    "source": "github",
+    "user": "axiomatic-systems",
+    "repo": "bento4"
+  },
+  "build": "mkdir build\ncd build\ncmake .. -DCMAKE_C_FLAGS='-fsanitize=address' -DCMAKE_CXX_FLAGS='-fsanitize=address'\nmake -j"
+}

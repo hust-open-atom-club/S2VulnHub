@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "name": "LuaJIT",
+  "environment": {},
+  "software": {
+    "source": "github",
+    "user": "LuaJIT",
+    "repo": "LuaJIT"
+  },
+  "build": "sed -i 's/#CCDEBUG= -g/CCDEBUG= -g/' src/Makefile\nmake -j"
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "name": "sqlite",
+  "environment": {
+    "distro": "ubuntu",
+    "version": "20.04",
+    "dependencies": ["tclsh"]
+  },
+  "software": {
+    "source": "github",
+    "user": "sqlite",
+    "repo": "sqlite"
+  },
+  "build": "./configure --enable-all\nmake -j"
+}

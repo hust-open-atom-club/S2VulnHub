@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "name": "autotrace",
+  "environment": {
+    "distro": "ubuntu",
+    "dependencies": [
+      "clang",
+      "pkg-config",
+      "libpng-dev",
+      "pstoedit",
+      "libpstoedit-dev"
+    ]
+  },
+  "software": {
+    "source": "tarball",
+    "url": "https://github.com/c8ef/VulPackpages/raw/main/autotrace.zip",
+    "name": "autotrace"
+  },
+  "build": "chmod +x ./configure\nLDFLAGS='-lasan -lubsan' ./configure\nmake -j"
+}
