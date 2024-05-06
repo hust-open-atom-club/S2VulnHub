@@ -7,5 +7,5 @@
     "user": "lua",
     "repo": "lua"
   },
-  "build": "sed -i 's/# TEST/TEST/g' makefile\nmake -j"
+  "build": "sed -i '/^# TEST/a\\TESTS= -fsanitize=address' makefile\nmake -j"
 }
