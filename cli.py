@@ -31,11 +31,13 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     if args.command == "reproduce":
-        with open(f"./CVE/{args.CVE}.json", "r") as f:
+        with open(f"./user_cve/{args.CVE}.json", "r") as f:
             schema = json.loads(f.read())
-        print(gen_reproduce(schema))
+        dockerfile = gen_reproduce(schema)
+        with open(f"./Dockerfile/{args.CVE}", "w") as f:
+            f.write(dockerfile)
     elif args.command == "scan":
-        with open(f"./CVE/{args.CVE}.json", "r") as f:
+        with open(f"./user_cve/{args.CVE}.json", "r") as f:
             schema = json.loads(f.read())
 
         if args.tags is None:
