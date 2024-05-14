@@ -8,6 +8,10 @@ fi
 CVE=$1
 
 python cli.py reproduce -C ${CVE}
+if [ $? -ne 0 ]; then
+    echo "Dockerfile generation failed."
+    exit 1
+fi
 
 # if [ ! -f "./Dockerfile/${CVE}" ]; then
 #     python cli.py reproduce -C ${CVE}

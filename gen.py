@@ -101,12 +101,3 @@ def scan_version(schema, target_tags=None):
             status.update(
                 f'[bold blue]reproducing {app_template["software"]["user"]}/{app_template["software"]["repo"]} version {ultimate_tags[ultimate_tags_idx][1]}...'
             )
-
-
-if __name__ == "__main__":
-    cve_id = "CVE-2016-9560"
-    with open(f"./user_cve/{cve_id}.json", "r") as f:
-        schema = json.loads(f.read())
-    out_file = gen_reproduce(schema)
-    with open("Dockerfile", "w") as f:
-        f.write(out_file)
