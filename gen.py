@@ -23,23 +23,7 @@ def gen_reproduce(schema):
     else:
         # tarball need not have version
         out_file += gen_soft(app_template["software"], None)
-    out_file += gen_build(app_template)
-    out_file += gen_poc(schema["trigger"])
-    out_file += 'CMD ["/bin/bash"]\n'
-
-    return out_file
-
-def gen_reproduce(schema):
-    out_file = ""
-    app_template = get_template(schema["category"])
-    out_file += gen_os(app_template["environment"])
-    out_file += "WORKDIR /root\n"
-    if "version" in schema:
-        out_file += gen_soft(app_template["software"], schema["version"])
-    else:
-        # tarball need not have version
-        out_file += gen_soft(app_template["software"], None)
-    out_file += gen_build(app_template)
+    out_file += gen_build(app_template, schema)
     out_file += gen_poc(schema["trigger"])
     out_file += 'CMD ["/bin/bash"]\n'
 
