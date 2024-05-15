@@ -38,30 +38,34 @@ def build_and_run(schema, line):
     out_file += gen_os(app_template["environment"])
     out_file += "WORKDIR /root\n"
     out_file += gen_soft(app_template["software"], schema["version"])
-    out_file += gen_build(app_template)
+    out_file += gen_build(app_template, schema)
     out_file += gen_poc(schema["trigger"])
     out_file += "RUN bash build.sh\n"
     out_file += 'CMD ["bash", "poc.sh"]\n'
 
-    with open("Dockerfile", "w") as f:
+    with open("./Dockerfile/Dockerfile", "w") as f:
         f.write(out_file)
 
     subprocess.run(
         ["sudo", "docker", "build", "-t", "testrepo", "."],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
+        cwd="./Dockerfile",
     )
 
-    ret = subprocess.run(
-        ["sudo", "docker", "run", "--rm", "-it", "--ulimit", "cpu=10", "testrepo"],
-        capture_output=True,
-        text=True,
+    ret = subprocess.Popen(
+        ["sudo", "docker", "run", "--rm", "-i", "--ulimit", "cpu=10", "testrepo"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True
     )
+    ret.wait(500)  # wait a little for docker to complete
+    errstr = ret.stderr.read()
 
     # returncode == 137 means exceed ulimit
     if ret.returncode != 0 and ret.returncode != 1 and ret.returncode != 137:
         return True  # True means vulnerable
-    elif ret.returncode == 1 and ret.stdout.find("Sanitizer") != -1:
+    elif ret.returncode == 1 and errstr.find("Sanitizer") != -1:
         return True
     else:
         return False  # False means safe
