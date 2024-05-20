@@ -4,6 +4,7 @@ from soft_gen import *
 from build_gen import *
 from poc_gen import *
 from inspect_gen import *
+from json_validate import *
 from rich.console import Console
 
 
@@ -14,8 +15,12 @@ def get_template(app_name):
 
 
 def gen_reproduce(schema):
-    out_file = ""
+    # validate the schema
+    validate_vuln(schema)
     app_template = get_template(schema["category"])
+    validate_software(app_template)
+
+    out_file = ""
     out_file += gen_os(app_template["environment"])
     out_file += "WORKDIR /root\n"
     if "version" in schema:

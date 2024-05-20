@@ -2,7 +2,6 @@ import argparse
 import json
 
 from gen import gen_reproduce, scan_version
-from pprint import pprint
 
 
 if __name__ == "__main__":
