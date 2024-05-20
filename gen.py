@@ -30,6 +30,7 @@ def gen_reproduce(schema):
         out_file += gen_soft(app_template["software"], None)
     out_file += gen_build(app_template, schema)
     out_file += gen_poc(schema["trigger"])
+    out_file += "RUN bash build.sh\n"
     out_file += 'CMD ["/bin/bash"]\n'
 
     return out_file
