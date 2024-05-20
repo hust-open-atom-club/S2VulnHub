@@ -47,7 +47,7 @@ def build_and_run(schema, line):
     out_file += gen_build(app_template, schema)
     out_file += gen_poc(schema["trigger"])
     out_file += "RUN bash build.sh\n"
-    out_file += 'CMD ["bash", "poc.sh"]\n'
+    out_file += 'CMD ["bash", "trigger.sh"]\n'
 
     with open("./Dockerfile/Dockerfile", "w") as f:
         f.write(out_file)
