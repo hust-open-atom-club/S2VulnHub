@@ -16,5 +16,5 @@
     "url": "https://github.com/c8ef/VulPackpages/raw/main/autotrace.zip",
     "name": "autotrace"
   },
-  "build": "chmod +x ./configure\nLDFLAGS='-lasan -lubsan' ./configure\nmake -j"
+  "build": "chmod +x ./configure\nCFLAGS='-fsanitize=address' ./configure\nmake -j"
 }
