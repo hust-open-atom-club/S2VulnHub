@@ -3,7 +3,6 @@
   "name": "sqlite",
   "environment": {
     "distro": "ubuntu",
-    "version": "20.04",
     "dependencies": ["tclsh"]
   },
   "software": {

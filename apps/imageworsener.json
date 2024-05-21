@@ -3,7 +3,6 @@
   "name": "imageworsener",
   "environment": {
     "distro": "ubuntu",
-    "version": "14.04",
     "dependencies": [
       "autoconf",
       "pkg-config",

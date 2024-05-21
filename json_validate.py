@@ -14,7 +14,6 @@ def validate_software(instance):
                         "type": "string",
                         "enum": ["ubuntu", "debian", "fedora", "arch"],
                     },
-                    "version": {"type": "string"},
                     "dependencies": {"type": "array"},
                 },
             },

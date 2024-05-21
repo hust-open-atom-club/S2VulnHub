@@ -1,6 +1,10 @@
+import re
+
 # this is the fallback template
 # and we install common build depend for it
 # hopefully it works for most of the cases
+
+
 def gen_default():
     env = f"FROM ubuntu:20.04\n"
     env += 'RUN sed -i "s@http://.*archive.ubuntu.com@http://mirrors.ustc.edu.cn/@g" /etc/apt/sources.list\n'
@@ -67,7 +71,7 @@ def gen_arch(environment):
     return env
 
 
-def gen_os(environment):
+def gen_os(environment, cve_id):
     env = ""
     if "distro" not in environment and "dependencies" in environment:
         raise Exception("dependencies must be used with distro")
@@ -75,10 +79,19 @@ def gen_os(environment):
     if "distro" not in environment:
         env = gen_default()
     elif environment["distro"] == "ubuntu":
-        if "version" in environment:
-            env = gen_ubuntu(environment, environment["version"])
+        # infer version from cve_id
+        # https://ubuntu.com/about/release-cycle
+        match = re.search(r"CVE-(\d+)-\d+", cve_id)
+        year = int(match.group(1))
+        if year < 2016:
+            version = "14.04"
+        elif year < 2018:
+            version = "16.04"
+        elif year < 2020:
+            version = "18.04"
         else:
-            env = gen_ubuntu(environment, "20.04")
+            version = "20.04"
+        env = gen_ubuntu(environment, version)
     elif environment["distro"] == "arch":
         env = gen_arch(environment)
 

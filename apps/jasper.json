@@ -3,7 +3,6 @@
   "name": "jasper",
   "environment": {
     "distro": "ubuntu",
-    "version": "16.04",
     "dependencies": ["autoconf", "pkg-config", "libtool"]
   },
   "software": {

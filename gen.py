@@ -21,7 +21,7 @@ def gen_reproduce(schema):
     validate_software(app_template)
 
     out_file = ""
-    out_file += gen_os(app_template["environment"])
+    out_file += gen_os(app_template["environment"], schema["id"])
     out_file += "WORKDIR /root\n"
     if "version" in schema:
         out_file += gen_soft(app_template["software"], schema["version"])
@@ -41,7 +41,7 @@ def build_and_run(schema, line):
     schema["version"] = line[0]
     out_file = ""
     app_template = get_template(schema["category"])
-    out_file += gen_os(app_template["environment"])
+    out_file += gen_os(app_template["environment"], schema["id"])
     out_file += "WORKDIR /root\n"
     out_file += gen_soft(app_template["software"], schema["version"])
     out_file += gen_build(app_template, schema)

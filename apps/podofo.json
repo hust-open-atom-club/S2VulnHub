@@ -3,7 +3,6 @@
   "name": "podofo",
   "environment": {
     "distro": "ubuntu",
-    "version": "16.04",
     "dependencies": ["libfreetype6-dev", "libfontconfig1-dev", "pkg-config"]
   },
   "software": {

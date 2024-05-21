@@ -1,5 +1,5 @@
 #!/bin/zsh
-
+# 输入CVE编号，自动构建Dockerfile并启动镜像
 if [ "$#" -ne 1 ]; then
     echo "Usage: $0 <CVE>"
     exit 1
@@ -21,7 +21,7 @@ cve=${1//CVE/cve}
 
 docker build -f ./Dockerfile/${CVE} -t ${cve}:v1 .
 if [ $? -eq 0 ]; then
-    docker run -it ${cve}:v1
+    docker run -it --rm ${cve}:v1
 else
     echo "Docker build failed."
     exit 1
