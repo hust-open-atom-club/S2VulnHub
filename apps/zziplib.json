@@ -17,5 +17,5 @@
     "user": "gdraheim",
     "repo": "zziplib"
   },
-  "build": "CFLAGS='-fsanitize=address' ./configure\nmake -j8"
+  "build": "CFLAGS='-fsanitize=address' ./configure\nmake -j"
 }

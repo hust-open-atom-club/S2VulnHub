@@ -30,7 +30,7 @@ def gen_reproduce(schema):
         out_file += gen_soft(app_template["software"], None)
     out_file += gen_build(app_template, schema)
     out_file += gen_poc(schema["trigger"])
-    out_file += "RUN bash build.sh\n"
+    out_file += "RUN bash build.sh || true\n"
     out_file += 'CMD ["/bin/bash"]\n'
 
     return out_file
@@ -46,7 +46,7 @@ def build_and_run(schema, line):
     out_file += gen_soft(app_template["software"], schema["version"])
     out_file += gen_build(app_template, schema)
     out_file += gen_poc(schema["trigger"])
-    out_file += "RUN bash build.sh\n"
+    out_file += "RUN bash build.sh || true\n"
     out_file += 'CMD ["bash", "trigger.sh"]\n'
 
     with open("./Dockerfile/Dockerfile", "w") as f:
@@ -54,8 +54,8 @@ def build_and_run(schema, line):
 
     subprocess.run(
         ["sudo", "docker", "build", "-t", "testrepo", "."],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
+        # stdout=subprocess.DEVNULL,
+        # stderr=subprocess.DEVNULL,
         cwd="./Dockerfile",
     )
 
