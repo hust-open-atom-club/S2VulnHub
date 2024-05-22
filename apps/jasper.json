@@ -3,7 +3,7 @@
   "name": "jasper",
   "environment": {
     "distro": "ubuntu",
-    "dependencies": ["autoconf", "pkg-config", "libtool"]
+    "dependencies": ["autoconf", "pkg-config", "libtool", "libjpeg-dev"]
   },
   "software": {
     "source": "github",
