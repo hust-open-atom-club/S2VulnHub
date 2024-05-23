@@ -1,0 +1,24 @@
+{
+    "schema_version": "1.0",
+    "name": "lrzip",
+    "environment": {
+        "distro": "ubuntu",
+        "dependencies": [
+            "autoconf",
+            "libtool",
+            "coreutils",
+            "libz-dev",
+            "libbz2-dev",
+            "liblzo2-dev",
+            "liblz4-dev",
+            "automake",
+            "gcc"
+        ]
+    },
+    "software": {
+        "source": "github",
+        "user": "ckolivas",
+        "repo": "lrzip"
+    },
+    "build": "./autogen.sh\nCFLAGS='-std=c99 -fsanitize=address' LDFLAGS='-lasan' ./configure\nmake -j `nproc`\nmake install"
+}
