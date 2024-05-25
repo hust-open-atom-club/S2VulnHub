@@ -1,0 +1,28 @@
+{
+    "schema_version": "1.0",
+    "name": "libsndfile",
+    "environment": {
+        "distro": "ubuntu",
+        "dependencies": [
+            "autoconf",
+            "autogen",
+            "automake",
+            "libasound2-dev",
+            "libflac-dev",
+            "libogg-dev",
+            "libtool",
+            "libvorbis-dev",
+            "libopus-dev",
+            "libmp3lame-dev",
+            "libmpg123-dev",
+            "pkg-config",
+            "python"
+        ]
+    },
+    "software": {
+        "source": "github",
+        "user": "libsndfile",
+        "repo": "libsndfile"
+    },
+    "build": "autoreconf -vif\nCFLAGS='-std=c99 -fsanitize=address' LDFLAGS='-lasan' ./configure --enable-werror\nmake\nmake check"
+}
