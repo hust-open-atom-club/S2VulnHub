@@ -1,0 +1,22 @@
+{
+    "schema_version": "1.0",
+    "name": "audiofile",
+    "environment": {
+        "distro": "ubuntu",
+        "dependencies": [
+            "pkg-config",
+            "autoconf",
+            "automake",
+            "libtool-bin",
+            "libtool",
+            "libasound2-dev",
+            "asciidoc"
+        ]
+    },
+    "software": {
+        "source": "github",
+        "user": "mpruett",
+        "repo": "audiofile"
+    },
+    "build": "CFLAGS='-std=c99 -fsanitize=address' ./autogen.sh\nsed -i 's/SUBDIRS = gtest libaudiofile sfcommands test examples docs/SUBDIRS = gtest libaudiofile sfcommands test examples/' Makefile\nmake -j"
+}
