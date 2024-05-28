@@ -1,0 +1,24 @@
+{
+    "schema_version": "1.0",
+    "name": "libarchive",
+    "environment": {
+        "distro": "ubuntu",
+        "dependencies": [
+            "autoconf",
+            "libtool",
+            "automake",
+            "pkg-config",
+            "zlib1g",
+            "libbz2-1.0",
+            "liblzma5",
+            "libzstd1",
+            "libssl-dev"
+        ]
+    },
+    "software": {
+        "source": "github",
+        "user": "libarchive",
+        "repo": "libarchive"
+    },
+    "build": "./build/autogen.sh\nCFLAGS='-std=c99 -fsanitize=address' ./configure\nmake -j\nmake check"
+}
