@@ -1,0 +1,22 @@
+{
+    "schema_version": "1.0",
+    "name": "kernel",
+    "environment": {
+      "distro": "ubuntu",
+      "dependencies": [
+        "libncurses-dev",
+        "flex",
+        "bison",
+        "libssl-dev",
+        "libelf-dev",
+        "openssh-client"
+      ]
+    },
+    "software": {
+      "source": "github",
+      "user": "torvalds",
+      "repo": "linux"
+    },
+    "build": "make -j`nproc`"
+  }
+  
