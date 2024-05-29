@@ -1,5 +1,4 @@
 __pycache__
 Dockerfile/Dockerfile
-add_build.sh
-test.py
+scripts
 .vscode
