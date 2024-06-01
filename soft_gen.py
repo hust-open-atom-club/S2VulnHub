@@ -11,4 +11,8 @@ def gen_soft(software, version=None):
         soft += f'RUN wget {software["url"]}\n'
         soft += f'RUN unzip {software["name"]}.zip\n'
         soft += f'WORKDIR /root/{software["name"]}\n'
+    elif software["source"] == "targz":
+        soft += f'RUN wget {software["url"]}\n'
+        soft += f'RUN tar -xzvf {software["name"]}.tar.gz\n'
+        soft += f'WORKDIR /root/{software["name"]}\n'
     return soft

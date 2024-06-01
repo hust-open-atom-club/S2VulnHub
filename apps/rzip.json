@@ -1,0 +1,20 @@
+{
+    "schema_version": "1.0",
+    "name": "rzip",
+    "environment": {
+        "distro": "ubuntu",
+        "dependencies": [
+            "automake",
+            "autoconf",
+            "pkg-config",
+            "libtool",
+            "libbz2-dev"
+        ]
+    },
+    "software": {
+        "source": "targz",
+        "url": "https://rzip.samba.org/ftp/rzip/rzip-2.1.tar.gz",
+        "name": "rzip-2.1"
+    },
+    "build": "CFLAGS='-std=c99 -fsanitize=address' ./configure\nmake -j"
+}
