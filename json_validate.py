@@ -22,20 +22,24 @@ def validate_software(instance):
                 "properties": {"source": {"type": "string"}},
                 "allOf": [
                     {
-                        "if": {"properties": {"source": {"const": "github"}}},
-                        "else": {
+                        "if": {"properties": {"source": {"const": "github"}},
+                               "required": ["source"]
+                               },
+                        "then": {
                             "properties": {
                                 "user": {"type": "string"},
                                 "repo": {"type": "string"},
-                            }
+                            },
+                            "required": ["user", "repo"]
                         },
                     },
                     {
-                        "if": {"properties": {"source": {"const": "tarball"}}},
-                        "else": {
-                            "properties": {
-                                "url": {"type": "string", "format": "uri"},
-                            }
+                        "if": {"properties": {"source": {"const": "tarball"}},
+                               "required": ["source"]
+                               },
+                        "then": {
+                            "properties": {"url": {"type": "string", "format": "uri"}},
+                            "required": ["url"]
                         },
                     },
                 ],
@@ -62,6 +66,7 @@ def validate_vuln(instance):
                 "properties": {
                     "poc": {"type": "string", "format": "uri"},
                     "guide": {"type": "string"},
+                    "config": {"type": "array", "items": {"type": "string"}},
                 },
                 "required": ["poc", "guide"],
             },
