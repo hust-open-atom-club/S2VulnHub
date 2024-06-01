@@ -1,0 +1,23 @@
+{
+    "schema_version": "1.0",
+    "name": "qpdf",
+    "environment": {
+        "distro": "ubuntu",
+        "dependencies":[
+            "automake",
+            "autoconf",
+            "libtool",
+            "libpcre3-dev",
+            "pkg-config",
+            "zlib1g-dev",
+            "libjpeg-dev",
+            "libssl-dev"
+        ]
+    },
+    "software": {
+        "source": "github",
+        "user": "qpdf",
+        "repo": "qpdf"
+    },
+    "build": "./autogen.sh\nCFLAGS='-std=c99 -fsanitize=address' LDFLAGS='-fsanitize=address -static-libasan' ./configure\nsed -i 's/BUILD_ITEMS := manual libqpdf zlib-flate libtests qpdf examples/BUILD_ITEMS := manual libqpdf zlib-flate qpdf examples/' Makefile\nmake -j"
+}
