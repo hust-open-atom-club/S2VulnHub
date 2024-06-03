@@ -1,0 +1,7 @@
+FROM jingyisong/kernel_bug_reproduce:bullseye
+WORKDIR /root
+RUN wget -O bzImage.xz 'https://storage.googleapis.com/syzbot-assets/c02d1542e886/bzImage-7b4f2bc9.xz'
+RUN unxz bzImage.xz
+RUN wget -O poc.c 'https://syzkaller.appspot.com/text?tag=ReproC&x=128b1d53180000'
+RUN gcc poc.c -lpthread -static -o poc
+CMD ["./startvm"]
