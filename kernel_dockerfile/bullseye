@@ -5,5 +5,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 # 文件系统
 COPY bullseye.id_rsa  bullseye.id_rsa.pub  bullseye.img /root/image/
 # 安装依赖
-RUN apt update && apt install -y qemu-system libncurses-dev flex bison libssl-dev libelf-dev openssh-client
+RUN apt update && apt install -y xz-utils git wget vim
+RUN apt install -y qemu-system libncurses-dev flex bison libssl-dev libelf-dev openssh-client
+COPY connectvm scptovm startvm killvm /root/
 CMD ["/bin/bash"]

@@ -17,6 +17,6 @@
       "user": "torvalds",
       "repo": "linux"
     },
-    "build": "make -j`nproc`"
+    "build": "cp ../.config .\nmake olddefconfig\nmake -j`nproc`\ncp arch/x86/boot/bzImage ../bzImage"
   }
   
