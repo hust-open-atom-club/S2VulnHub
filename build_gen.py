@@ -1,10 +1,10 @@
 import base64
 
 
-def gen_build(app_template, schecma):
+def gen_build(app_template, schema = None):
     # build in CVE schema has higher priority
-    if "build" in schecma:
-        build = schecma["build"]
+    if "build" in schema:
+        build = schema["build"]
     elif "build" in app_template:
         build = app_template["build"]
     else:
