@@ -13,13 +13,13 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# if [ ! -f "./Dockerfile/${CVE}" ]; then
+# if [ ! -f "../Dockerfile/${CVE}" ]; then
 #     python cli.py reproduce -C ${CVE}
 # fi
 
 cve=${1//CVE/cve}
 
-docker build -f ./Dockerfile/${CVE} -t ${cve}:v1 .
+docker build -f ../Dockerfile/${CVE} -t ${cve}:v1 .
 if [ $? -eq 0 ]; then
     docker run -it --rm ${cve}:v1
 else
