@@ -104,7 +104,7 @@ def get_bug_info(table):
 
 def main(bug_extid):
     # id or extid: https://github.com/google/syzkaller/pull/3891/files
-    target = 'https://syzkaller.appspot.com/bug?id='+str(bug_extid)
+    target = 'https://syzkaller.appspot.com/bug?extid='+str(bug_extid)
     content = urllib.request.urlopen(target).read()
     soup = BeautifulSoup(content, 'html.parser')
     list_tables = soup.find_all(class_='list_table')

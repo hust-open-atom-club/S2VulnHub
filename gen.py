@@ -54,8 +54,8 @@ def build_and_run(schema, line):
 
     subprocess.run(
         ["sudo", "docker", "build", "-t", "testrepo", "."],
-        # stdout=subprocess.DEVNULL,
-        # stderr=subprocess.DEVNULL,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
         cwd="./Dockerfile",
     )
 
