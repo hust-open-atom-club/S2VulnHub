@@ -1,0 +1,14 @@
+{
+    "schema_version": "1.0",
+    "name": "Python-2.7.6",
+    "environment": {
+        "distro": "ubuntu",
+        "dependencies": []
+    },
+    "software": {
+        "source": "tgz",
+        "url": "https://github.com/mudongliang/source-packages/raw/master/CVE-2014-7185/Python-2.7.6.tgz",
+        "name": "Python-2.7.6"
+    },
+    "build": "./configure\nmake -j"
+}

@@ -1,0 +1,20 @@
+{
+    "schema_version": "1.0",
+    "name": "libmimedir-0.5.1",
+    "environment": {
+        "distro": "ubuntu",
+        "dependencies": [
+            "python",
+            "pkg-config",
+            "libtool",
+            "automake",
+            "autoconf"
+        ]
+    },
+    "software": {
+        "source": "targz",
+        "url": "https://github.com/mudongliang/source-packages/raw/master/CVE-2015-3205/libmimedir-0.5.1.tar.gz",
+        "name": "libmimedir-0.5.1"
+    },
+    "build": "CFLAGS='-std=c99 -fsanitize=address' CXXFLAGS='-fsanitize=address' ./configure\nmake -j"
+}

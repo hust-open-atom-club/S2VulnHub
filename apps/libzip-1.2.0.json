@@ -1,0 +1,19 @@
+{
+    "schema_version": "1.0", 
+    "name": "libzip-1.2.0",
+    "environment": {
+        "distro": "ubuntu",
+        "dependencies": [
+            "pkg-config",
+            "zlib1g-dev",
+            "libbz2-dev",
+            "liblzma-dev"
+        ]
+    },
+    "software": {
+        "source": "targz",
+        "url": "https://github.com/Yeeyooo/libzip-1.2.0/raw/main/libzip-1.2.0.tar.gz",
+        "name": "libzip-1.2.0"
+    },
+    "build": "CFLAGS='-g -O0 -fsanitize=address' ./configure\nmake -j"
+}
