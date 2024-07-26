@@ -1,0 +1,17 @@
+{
+    "schema_version": "1.0",
+    "name": "sqlite-autoconf-3080600",
+    "environment": {
+        "distro": "ubuntu",
+        "dependencies": [
+            "libtool",
+            "pkg-config"
+        ]
+    },
+    "software": {
+        "source": "targz",
+        "url": "https://github.com/mudongliang/source-packages/raw/master/CVE-2015-5895/sqlite-autoconf-3080600.tar.gz",
+        "name": "sqlite-autoconf-3080600"
+    },
+    "build": "CFLAGS='-std=c99 -fsanitize=address' CXXFLAGS='-fsanitize=address' ./configure\nmake -j"
+}

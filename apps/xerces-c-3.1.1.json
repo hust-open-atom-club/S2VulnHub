@@ -1,0 +1,16 @@
+{
+    "schema_version": "1.0",
+    "name": "xerces-c-3.1.1",
+    "environment": {
+        "distro": "ubuntu",
+        "dependencies": [
+
+        ]
+    },
+    "software": {
+        "source": "targz",
+        "url": "https://github.com/mudongliang/source-packages/raw/master/CVE-2015-0252/xerces-c-3.1.1.tar.gz",
+        "name": "xerces-c-3.1.1"
+    },
+    "build": "CFLAGS='-std=c99 -fsanitize=address' CXXFLAGS='-fsanitize=address' ./configure\nmake -j"
+}

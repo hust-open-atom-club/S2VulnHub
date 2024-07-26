@@ -1,0 +1,19 @@
+{
+    "schema_version": "1.0",
+    "name": "tiff-4.0.1",
+    "environment": {
+        "distro": "ubuntu",
+        "dependencies": [
+            "libtiff5",
+            "libtiff-tools",
+            "libtiff-dev",
+            "libtool"
+        ]
+    },
+    "software": {
+        "source": "targz",
+        "url": "https://github.com/mudongliang/source-packages/raw/master/CVE-2015-8668/tiff-4.0.1.tar.gz",
+        "name": "tiff-4.0.1"
+    },
+    "build": "CFLAGS='-std=c99 -fsanitize=address' CXXFLAGS='-fsanitize=address' ./configure\nmake -j"
+}

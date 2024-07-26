@@ -1,0 +1,20 @@
+{
+    "schema_version": "1.0",
+    "name": "libav",
+    "environment": {
+        "distro": "ubuntu",
+        "dependencies": [
+            "nasm",
+            "pkg-config",
+            "libtool",
+            "automake",
+            "autoconf"
+        ]
+    },
+    "software": {
+        "source": "github",
+        "user": "libav",
+        "repo": "libav"
+    },
+    "build": "./configure\nmake -j"
+}
