@@ -1,8 +1,9 @@
 import json
 import sys
-from soft_gen import *
+
 from build_gen import *
 from poc_gen import *
+from soft_gen import *
 
 
 def gen_bzImage(kernel_template, trigger):
@@ -16,6 +17,7 @@ def gen_bzImage(kernel_template, trigger):
         img += gen_build(kernel_template)
     return img
 
+
 # root
 # ├── image
 # ├── bzImage
@@ -25,6 +27,7 @@ def gen_bzImage(kernel_template, trigger):
 # ├── linux
 # │   ├── source
 # │   ├── build.sh
+
 
 def gen_reproduce(vuln):
     # rootfs + bzImage + poc
@@ -36,7 +39,7 @@ def gen_reproduce(vuln):
     out_file = ""
     out_file += "FROM jingyisong/kernel_bug_reproduce:bullseye\n"
     out_file += "WORKDIR /root\n"
-    out_file += gen_bzImage(kernel_template, vuln['trigger'])
+    out_file += gen_bzImage(kernel_template, vuln["trigger"])
     out_file += f"RUN wget -O poc.c '{vuln['trigger']['poc']}'\n"
     out_file += "RUN gcc poc.c -lpthread -static -o poc\n"
     out_file += 'CMD ["./startvm"]\n'

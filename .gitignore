@@ -2,3 +2,4 @@ __pycache__
 Dockerfile/Dockerfile
 myscripts
 .vscode
+.pdm-python

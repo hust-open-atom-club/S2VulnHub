@@ -1,0 +1,23 @@
+[project]
+name = "S2VulnHub"
+version = "0.1.0"
+description = "Default template for PDM package"
+authors = [
+    {name = "Yuao Ma"},
+    {name = "Jingyi Song", email = "jingyisong@hust.edu.cn"},
+    {name = "Jiayuan Li", email = "jiayuan_li@hust.edu.cn"},
+]
+dependencies = [
+    "argparse>=1.4.0",
+    "rich>=13.7.1",
+    "requests>=2.32.3",
+    "jsonschema>=4.23.0",
+    "bs4>=0.0.2",
+]
+requires-python = ">=3.10"
+readme = "README.md"
+license = {text = "BSD"}
+
+
+[tool.pdm]
+distribution = false

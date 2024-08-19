@@ -1,11 +1,13 @@
 import json
-from os_gen import *
-from soft_gen import *
+
+from rich.console import Console
+
 from build_gen import *
-from poc_gen import *
 from inspect_gen import *
 from json_validate import *
-from rich.console import Console
+from os_gen import *
+from poc_gen import *
+from soft_gen import *
 
 
 def get_template(app_name):
@@ -63,7 +65,7 @@ def build_and_run(schema, line):
         ["sudo", "docker", "run", "--rm", "-i", "--ulimit", "cpu=10", "testrepo"],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        text=True
+        text=True,
     )
     ret.wait(500)  # wait a little for docker to complete
     errstr = ret.stderr.read()

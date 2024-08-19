@@ -22,24 +22,26 @@ def validate_software(instance):
                 "properties": {"source": {"type": "string"}},
                 "allOf": [
                     {
-                        "if": {"properties": {"source": {"const": "github"}},
-                               "required": ["source"]
-                               },
+                        "if": {
+                            "properties": {"source": {"const": "github"}},
+                            "required": ["source"],
+                        },
                         "then": {
                             "properties": {
                                 "user": {"type": "string"},
                                 "repo": {"type": "string"},
                             },
-                            "required": ["user", "repo"]
+                            "required": ["user", "repo"],
                         },
                     },
                     {
-                        "if": {"properties": {"source": {"const": "tarball"}},
-                               "required": ["source"]
-                               },
+                        "if": {
+                            "properties": {"source": {"const": "tarball"}},
+                            "required": ["source"],
+                        },
                         "then": {
                             "properties": {"url": {"type": "string", "format": "uri"}},
-                            "required": ["url"]
+                            "required": ["url"],
                         },
                     },
                 ],

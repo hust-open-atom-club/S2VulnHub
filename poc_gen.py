@@ -1,5 +1,6 @@
 import base64
 
+
 def gen_poc(trigger):
     poc = ""
     if "poc" in trigger:

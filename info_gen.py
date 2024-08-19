@@ -1,5 +1,6 @@
-import requests
 import re
+
+import requests
 
 
 def get_raw_arch(app_name):
@@ -14,7 +15,7 @@ def get_raw_arch(app_name):
 
 def get_raw_fedora(app_name):
     resp = requests.get(
-        f"https://src.fedoraproject.org/rpms/{app_name}/raw/rawhide/f/{app_name}.spec" 
+        f"https://src.fedoraproject.org/rpms/{app_name}/raw/rawhide/f/{app_name}.spec"
     )
     if resp.status_code == 200:
         return resp.text
