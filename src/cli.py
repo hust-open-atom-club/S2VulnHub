@@ -40,13 +40,13 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     if args.command == "reproduce":
-        with open(f"./user_cve/{args.CVE}.json", "r") as f:
+        with open(f"../data/user_cve/{args.CVE}.json", "r") as f:
             schema = json.loads(f.read())
         dockerfile = gen_reproduce(schema)
-        with open(f"./Dockerfile/{args.CVE}", "w") as f:
+        with open(f"../data/user_dockerfile/{args.CVE}", "w") as f:
             f.write(dockerfile)
     elif args.command == "scan":
-        with open(f"./user_cve/{args.CVE}.json", "r") as f:
+        with open(f"../data/user_cve/{args.CVE}.json", "r") as f:
             schema = json.loads(f.read())
 
         if args.tags is None:
@@ -54,7 +54,7 @@ if __name__ == "__main__":
         else:
             scan_version(schema, args.tags)
     elif args.command == "inspect":
-        with open(f"./apps/{args.app}.json", "r") as f:
+        with open(f"../data/apps/{args.app}.json", "r") as f:
             schema = json.loads(f.read())
         pprint(
             list_all_tags_for_remote_git_repo(

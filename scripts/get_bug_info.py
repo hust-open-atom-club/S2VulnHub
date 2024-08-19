@@ -42,7 +42,7 @@ def write_conf(bug_extid, k_id, poc_url, bz_url, config_url):
 """
     content = schema % (bug_extid, k_id, poc_url, bz_url, config_url)
     print(content)
-    open(f"../kernel_bug/{bug_extid}.json", "w").write(content)
+    open(f"../data/kernel_bug/{bug_extid}.json", "w").write(content)
 
 
 def get_if_has(tag, key="href"):

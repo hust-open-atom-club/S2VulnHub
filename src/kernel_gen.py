@@ -33,7 +33,7 @@ def gen_reproduce(vuln):
     # rootfs + bzImage + poc
     # bzImage = source + config
     # poc = compile poc.c
-    with open(f"./apps/kernel.json", "r") as f:
+    with open(f"../data/apps/kernel.json", "r") as f:
         kernel_template = json.loads(f.read())
 
     out_file = ""
@@ -48,7 +48,7 @@ def gen_reproduce(vuln):
 
 
 if __name__ == "__main__":
-    with open(f"./kernel_bug/{sys.argv[1]}.json", "r") as f:
+    with open(f"../data/kernel_bug/{sys.argv[1]}.json", "r") as f:
         vuln = json.loads(f.read())
-    with open(f"./kernel_dockerfile/{sys.argv[1]}", "w") as f:
+    with open(f"../data/kernel_dockerfile/{sys.argv[1]}", "w") as f:
         f.write(gen_reproduce(vuln))

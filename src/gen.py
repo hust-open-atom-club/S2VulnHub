@@ -11,7 +11,7 @@ from soft_gen import *
 
 
 def get_template(app_name):
-    with open(f"./apps/{app_name}.json", "r") as f:
+    with open(f"../data/apps/{app_name}.json", "r") as f:
         schema = json.loads(f.read())
     return schema
 
@@ -51,14 +51,14 @@ def build_and_run(schema, line):
     out_file += "RUN bash build.sh || true\n"
     out_file += 'CMD ["bash", "trigger.sh"]\n'
 
-    with open("./Dockerfile/Dockerfile", "w") as f:
+    with open("../data/user_dockerfile/Dockerfile", "w") as f:
         f.write(out_file)
 
     subprocess.run(
         ["sudo", "docker", "build", "-t", "testrepo", "."],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
-        cwd="./Dockerfile",
+        cwd="../data/user_dockerfile",
     )
 
     ret = subprocess.Popen(
