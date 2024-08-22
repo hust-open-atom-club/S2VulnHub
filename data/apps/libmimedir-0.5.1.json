@@ -12,7 +12,7 @@
         ]
     },
     "software": {
-        "source": "targz",
+        "source": "tarball",
         "url": "https://github.com/mudongliang/source-packages/raw/master/CVE-2015-3205/libmimedir-0.5.1.tar.gz",
         "name": "libmimedir-0.5.1"
     },

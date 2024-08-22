@@ -12,7 +12,7 @@
         ]
     },
     "software": {
-        "source": "targz",
+        "source": "tarball",
         "url": "https://rzip.samba.org/ftp/rzip/rzip-2.1.tar.gz",
         "name": "rzip-2.1"
     },

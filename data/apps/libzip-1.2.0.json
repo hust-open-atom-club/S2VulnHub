@@ -11,7 +11,7 @@
         ]
     },
     "software": {
-        "source": "targz",
+        "source": "tarball",
         "url": "https://github.com/Yeeyooo/libzip-1.2.0/raw/main/libzip-1.2.0.tar.gz",
         "name": "libzip-1.2.0"
     },
