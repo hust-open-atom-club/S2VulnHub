@@ -16,14 +16,35 @@ data 目录存放漏洞复现相关的数据，src 目录存放源代码，scrip
 ```
 
 ## 快速开始
+
+### 环境准备
 ```
-$ cd src
+# 建议使用 pipx 安装全局工具（pdm, black, isort, pre-commit等）
+$ pipx install pdm
+
+# 使用 pdm 在虚拟环境安装项目依赖
+# https://pdm-project.org/zh-cn/latest/usage/venv/
+$ pdm install
+
+# 列出虚拟环境
+$ pdm venv list
+Virtualenvs created with this project:
+
+*  in-project: /home/user/S2VulnHub/.venv
+
+# 激活虚拟环境
+$ eval $(pdm venv activate in-project)
+```
+
+### 漏洞复现
+```
+(s2vulnhub-3.10)$ cd src
 
 # 根据 data/user_cve/ 中的 json 文件自动生成 Dockerfile 到 data/user_dockerfile/
-$ python cli.py reproduce CVE-2017-5980
+(s2vulnhub-3.10)$ python cli.py reproduce CVE-2017-5980
 
 # 检测 zziplib v0.13.62 是否受 CVE-2017-5980 影响
-$ python cli.py scan CVE-2017-5980 -t v0.13.62
+(s2vulnhub-3.10)$ python cli.py scan CVE-2017-5980 -t v0.13.62
 ```
 
 ## 用法
