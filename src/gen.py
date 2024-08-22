@@ -1,7 +1,7 @@
 import json
 
 from rich.console import Console
-
+from utils import *
 from build_gen import *
 from inspect_gen import *
 from json_validate import *
@@ -40,6 +40,10 @@ def gen_reproduce(schema):
 
 # line: [commit, tag]
 def build_and_run(schema, line):
+    if not check_docker_permission():
+        add_user_to_docker_group()
+        exit(1)
+
     schema["version"] = line[0]
     out_file = ""
     app_template = get_template(schema["category"])
@@ -54,26 +58,33 @@ def build_and_run(schema, line):
     with open("../data/user_dockerfile/Dockerfile", "w") as f:
         f.write(out_file)
 
-    subprocess.run(
-        ["sudo", "docker", "build", "-t", "testrepo", "."],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
+    build_ret = subprocess.run(
+        ["docker", "build", "-t", "testrepo", "."],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
         cwd="../data/user_dockerfile",
     )
+    if build_ret.returncode != 0:
+        exit(1)
 
-    ret = subprocess.Popen(
-        ["sudo", "docker", "run", "--rm", "-i", "--ulimit", "cpu=10", "testrepo"],
+    run_ret = subprocess.Popen(
+        ["docker", "run", "--rm", "-i", "--ulimit", "cpu=10", "testrepo"],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
     )
-    ret.wait(500)  # wait a little for docker to complete
-    errstr = ret.stderr.read()
+    run_ret.wait(500)  # wait a little for docker to complete
+    errstr = run_ret.stderr.read()
 
     # returncode == 137 means exceed ulimit
-    if ret.returncode != 0 and ret.returncode != 1 and ret.returncode != 137:
+    if (
+        run_ret.returncode != 0
+        and run_ret.returncode != 1
+        and run_ret.returncode != 137
+    ):
         return True  # True means vulnerable
-    elif ret.returncode == 1 and errstr.find("Sanitizer") != -1:
+    elif run_ret.returncode == 1 and errstr.find("Sanitizer") != -1:
         return True
     else:
         return False  # False means safe
