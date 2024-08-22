@@ -5,7 +5,7 @@
 groups = ["default"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:176d663a5b7d38cebb62c5a3cf542641d2670c13debf37ce4d884a8edcebffd3"
+content_hash = "sha256:0096b6271963de4d0259c9f4638f2850c5db6551b57b96148540d1f7fb796954"
 
 [[metadata.targets]]
 requires_python = ">=3.10"
@@ -171,6 +171,15 @@ dependencies = [
 files = [
     {file = "jsonschema_specifications-2023.12.1-py3-none-any.whl", hash = "sha256:87e4fdf3a94858b8a2ba2778d9ba57d8a9cafca7c7489c46ba0d30a8bc6a9c3c"},
     {file = "jsonschema_specifications-2023.12.1.tar.gz", hash = "sha256:48a76787b3e70f5ed53f1160d2b81f586e4ca6d1548c5de7085d1682674764cc"},
+]
+
+[[package]]
+name = "logger"
+version = "1.4"
+summary = "Python logging helper"
+groups = ["default"]
+files = [
+    {file = "logger-1.4.tar.gz", hash = "sha256:4ecac57133c6376fa215f0fe6b4dc4d60e4d1ad8be005cab4e8a702df682f8b3"},
 ]
 
 [[package]]
