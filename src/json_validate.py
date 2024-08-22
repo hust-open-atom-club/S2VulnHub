@@ -1,7 +1,8 @@
 from jsonschema import validate
+from logger import logger
 
 
-def validate_software(instance):
+def validate_software(instance: dict) -> bool:
     schema = {
         "type": "object",
         "properties": {
@@ -19,7 +20,9 @@ def validate_software(instance):
             },
             "software": {
                 "type": "object",
-                "properties": {"source": {"type": "string"}},
+                "properties": {
+                    "source": {"type": "string", "enum": ["github", "tarball"]}
+                },
                 "allOf": [
                     {
                         "if": {
@@ -48,13 +51,17 @@ def validate_software(instance):
             },
             "build": {"type": "string"},
         },
-        "required": ["schema_version", "name", "software"],
+        "required": ["schema_version", "name", "software", "build"],
     }
+    try:
+        validate(instance, schema)
+        return True
+    except Exception as e:
+        logger.warning(e.message)
+        return False
 
-    validate(instance, schema)
 
-
-def validate_vuln(instance):
+def validate_vuln(instance: dict) -> bool:
     schema = {
         "type": "object",
         "properties": {
@@ -76,4 +83,9 @@ def validate_vuln(instance):
         "required": ["schema_version", "id", "category", "trigger"],
     }
 
-    validate(instance, schema)
+    try:
+        validate(instance, schema)
+        return True
+    except Exception as e:
+        logger.warning(e.message)
+        return False

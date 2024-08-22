@@ -8,19 +8,26 @@ from json_validate import *
 from os_gen import *
 from poc_gen import *
 from soft_gen import *
+from logger import logger
 
 
 def get_template(app_name):
-    with open(f"../data/apps/{app_name}.json", "r") as f:
-        schema = json.loads(f.read())
-    return schema
+    try:
+        with open(f"../data/apps/{app_name}.json", "r") as f:
+            schema = json.loads(f.read())
+        return schema
+    except Exception as e:
+        logger.warning(e)
+        exit(1)
 
 
 def gen_reproduce(schema):
     # validate the schema
-    validate_vuln(schema)
+    if not validate_vuln(schema):
+        exit(1)
     app_template = get_template(schema["category"])
-    validate_software(app_template)
+    if not validate_software(app_template):
+        exit(1)
 
     out_file = ""
     out_file += gen_os(app_template["environment"], schema["id"])
