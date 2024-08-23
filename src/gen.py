@@ -36,7 +36,7 @@ def gen_reproduce(schema):
         out_file += gen_soft(app_template["software"], schema["version"])
     else:
         # tarball need not have version
-        out_file += gen_soft(app_template["software"], None)
+        out_file += gen_soft(app_template["software"])
     out_file += gen_build(app_template, schema)
     out_file += gen_poc(schema["trigger"])
     out_file += "RUN bash build.sh || true\n"
@@ -46,21 +46,15 @@ def gen_reproduce(schema):
 
 
 # line: [commit, tag]
-def build_and_run(schema, line):
+def build_and_run(schema, line=None):
     if not check_docker_permission():
         add_user_to_docker_group()
         exit(1)
 
-    schema["version"] = line[0]
-    out_file = ""
-    app_template = get_template(schema["category"])
-    out_file += gen_os(app_template["environment"], schema["id"])
-    out_file += "WORKDIR /root\n"
-    out_file += gen_soft(app_template["software"], schema["version"])
-    out_file += gen_build(app_template, schema)
-    out_file += gen_poc(schema["trigger"])
-    out_file += "RUN bash build.sh || true\n"
-    out_file += 'CMD ["bash", "trigger.sh"]\n'
+    if line:
+        schema["version"] = line[0]
+    out_file = gen_reproduce(schema)
+    out_file = out_file.replace('CMD ["/bin/bash"]', 'CMD ["bash", "trigger.sh"]')
 
     with open("../data/user_dockerfile/Dockerfile", "w") as f:
         f.write(out_file)
@@ -100,19 +94,28 @@ def build_and_run(schema, line):
 
 
 def scan_version(schema, target_tags=None):
-    app_template = get_template(schema["category"])
+    console = Console()
 
+    app_template = get_template(schema["category"])
     if app_template["software"]["source"] == "tarball":
-        raise Exception("tarball package scan is not supported")
+        logger.info(
+            f'This software source is tarball, only the package in {schema["category"]}.json will be scanned and -t option will be ignored'
+        )
+        with console.status(
+            f'[bold blue]reproducing {schema["id"]} in {schema["category"]}...'
+        ) as status:
+            vul_status = build_and_run(schema)
+            if vul_status:
+                console.log(f"[bold red]:pile_of_poo: package is vulnerable")
+            else:
+                console.log(f"[green]:thumbs_up: package is safe")
+            return
 
     tags = list_all_tags_for_remote_git_repo(
         f'https://github.com/{app_template["software"]["user"]}/{app_template["software"]["repo"]}'
     )
     tags.reverse()
     ultimate_tags = []
-
-    console = Console()
-
     for tag in tags:
         if target_tags is None or tag[1] in target_tags:
             ultimate_tags.append(tag)
