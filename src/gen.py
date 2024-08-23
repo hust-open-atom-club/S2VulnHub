@@ -73,6 +73,8 @@ def build_and_run(schema, line):
         cwd="../data/user_dockerfile",
     )
     if build_ret.returncode != 0:
+        logger.warning("docker build failed")
+        logger.warning("\n".join(build_ret.stderr.split("\n")[-30:]))
         exit(1)
 
     run_ret = subprocess.Popen(
