@@ -7,7 +7,7 @@
   },
   "software": {
     "source": "tarball",
-    "url": "https://github.com/c8ef/VulPackpages/raw/main/podofo.zip",
+    "url": "https://github.com/mudongliang/source-packages/raw/master/CVE-2017-5854/podofo-0.9.4.tar.gz",
     "name": "podofo"
   },
   "build": "mkdir build\ncd build\ncmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS='-fsanitize=address'\nmake -j"
