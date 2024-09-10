@@ -3,6 +3,7 @@ import json
 from pprint import pprint
 
 from gen import gen_reproduce, scan_version, get_template
+from kernel_gen import gen_kernel_reproduce
 from info_gen import get_build_arch, get_depend, get_raw
 from inspect_gen import list_all_tags_for_remote_git_repo
 from json_validate import *
@@ -20,6 +21,9 @@ if __name__ == "__main__":
         "reproduce", help="generate Dockerfile for a vulnerability"
     )
     reproduce.add_argument("CVE", help="the CVE to generate Dockerfile")
+    reproduce.add_argument(
+        "-k", "--kernel", action="store_true", help="generate kernel Dockerfile"
+    )
 
     # subcommand scan
     scan = subparsers.add_parser("scan", help="scan if the app version is vulnerable")
@@ -59,11 +63,24 @@ if __name__ == "__main__":
     # parse the args
     args = parser.parse_args()
     if args.command == "reproduce":
-        with open(f"../data/user_cve/{args.CVE}.json", "r") as f:
-            schema = json.loads(f.read())
-        dockerfile = gen_reproduce(schema)
-        with open(f"../data/user_dockerfile/{args.CVE}", "w") as f:
-            f.write(dockerfile)
+        if args.kernel:
+            vuln_schema_dir = "../data/kernel_bug/"
+            dockerfile_dir = "../data/kernel_dockerfile/"
+        else:
+            vuln_schema_dir = "../data/user_cve/"
+            dockerfile_dir = "../data/user_dockerfile/"
+        try:
+            with open(vuln_schema_dir + f"{args.CVE}.json", "r") as f:
+                schema = json.loads(f.read())
+            if args.kernel:
+                dockerfile = gen_kernel_reproduce(schema)
+            else:
+                dockerfile = gen_reproduce(schema)
+            with open(dockerfile_dir + f"{args.CVE}", "w") as f:
+                f.write(dockerfile)
+        except FileNotFoundError as e:
+            logger.error(e)
+
     elif args.command == "scan":
         with open(f"../data/user_cve/{args.CVE}.json", "r") as f:
             schema = json.loads(f.read())
