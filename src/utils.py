@@ -1,8 +1,23 @@
-import os
-import grp
-import subprocess
 import getpass
-from logger import logger
+import grp
+import json
+import logging
+import os
+import subprocess
+
+from rich.logging import RichHandler
+
+logging.basicConfig(level="NOTSET", format="%(message)s", handlers=[RichHandler()])
+logger = logging.getLogger("s2vulhub")
+
+def get_template(app_name):
+    try:
+        with open(f"../data/apps/{app_name}.json", "r") as f:
+            schema = json.loads(f.read())
+        return schema
+    except Exception as e:
+        logger.warning(e)
+        exit(1)
 
 
 def check_docker_permission():

@@ -1,5 +1,6 @@
 from jsonschema import validate
-from logger import logger
+
+from utils import logger
 
 
 def validate_software(instance: dict) -> bool:

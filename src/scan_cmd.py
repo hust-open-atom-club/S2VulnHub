@@ -1,48 +1,15 @@
-import json
+import subprocess
 
 from rich.console import Console
-from utils import *
-from build_gen import *
-from inspect_gen import *
-from json_validate import *
-from os_gen import *
-from poc_gen import *
-from soft_gen import *
-from logger import logger
 
-
-def get_template(app_name):
-    try:
-        with open(f"../data/apps/{app_name}.json", "r") as f:
-            schema = json.loads(f.read())
-        return schema
-    except Exception as e:
-        logger.warning(e)
-        exit(1)
-
-
-def gen_reproduce(schema):
-    # validate the schema
-    if not validate_vuln(schema):
-        exit(1)
-    app_template = get_template(schema["category"])
-    if not validate_software(app_template):
-        exit(1)
-
-    out_file = ""
-    out_file += gen_os(app_template["environment"], schema["id"])
-    out_file += "WORKDIR /root\n"
-    if "version" in schema:
-        out_file += gen_soft(app_template["software"], schema["version"])
-    else:
-        # tarball need not have version
-        out_file += gen_soft(app_template["software"])
-    out_file += gen_build(app_template, schema)
-    out_file += gen_poc(schema["trigger"])
-    out_file += "RUN bash build.sh || true\n"
-    out_file += 'CMD ["/bin/bash"]\n'
-
-    return out_file
+from info_cmd import list_tags
+from repro_cmd import gen_user_reproduce
+from utils import (
+    add_user_to_docker_group,
+    check_docker_permission,
+    get_template,
+    logger,
+)
 
 
 # line: [commit, tag]
@@ -53,7 +20,7 @@ def build_and_run(schema, line=None):
 
     if line:
         schema["version"] = line[0]
-    out_file = gen_reproduce(schema)
+    out_file = gen_user_reproduce(schema)
     out_file = out_file.replace('CMD ["/bin/bash"]', 'CMD ["bash", "trigger.sh"]')
 
     with open("../data/user_dockerfile/Dockerfile", "w") as f:
@@ -111,7 +78,7 @@ def scan_version(schema, target_tags=None):
                 console.log(f"[green]:thumbs_up: package is safe")
             return
 
-    tags = list_all_tags_for_remote_git_repo(
+    tags = list_tags(
         f'https://github.com/{app_template["software"]["user"]}/{app_template["software"]["repo"]}'
     )
     tags.reverse()

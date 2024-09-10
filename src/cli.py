@@ -2,11 +2,11 @@ import argparse
 import json
 from pprint import pprint
 
-from gen import gen_reproduce, scan_version, get_template
-from kernel_gen import gen_kernel_reproduce
-from info_gen import get_build_arch, get_depend, get_raw
-from inspect_gen import list_all_tags_for_remote_git_repo
-from json_validate import *
+from info_cmd import get_build_arch, get_depend, get_raw, list_tags
+from repro_cmd import gen_kernel_reproduce, gen_user_reproduce, get_template
+from scan_cmd import scan_version
+from utils import logger
+from validate_cmd import validate_software, validate_vuln
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -75,7 +75,7 @@ if __name__ == "__main__":
             if args.kernel:
                 dockerfile = gen_kernel_reproduce(schema)
             else:
-                dockerfile = gen_reproduce(schema)
+                dockerfile = gen_user_reproduce(schema)
             with open(dockerfile_dir + f"{args.CVE}", "w") as f:
                 f.write(dockerfile)
         except FileNotFoundError as e:
@@ -99,7 +99,7 @@ if __name__ == "__main__":
             with open(f"../data/apps/{args.app}.json", "r") as f:
                 schema = json.loads(f.read())
             pprint(
-                list_all_tags_for_remote_git_repo(
+                list_tags(
                     f'https://github.com/{schema["software"]["user"]}/{schema["software"]["repo"]}'
                 )
             )
