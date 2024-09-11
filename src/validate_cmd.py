@@ -18,6 +18,7 @@ def validate_software(instance: dict) -> bool:
                     },
                     "dependencies": {"type": "array"},
                 },
+                "required": ["distro"],
             },
             "software": {
                 "type": "object",

@@ -92,9 +92,6 @@ def gen_os(environment: dict, cve_id: str) -> str:
         str: os dockerfile snippet
     """
     env = ""
-    if "distro" not in environment and "dependencies" in environment:
-        raise Exception("dependencies must be used with distro")
-
     if "distro" not in environment:
         env = gen_default_os()
     elif environment["distro"] == "ubuntu":
