@@ -1,7 +1,6 @@
 {
   "schema_version": "1.0",
   "name": "lua",
-  "environment": {},
   "software": {
     "source": "github",
     "user": "lua",
