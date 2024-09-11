@@ -7,10 +7,21 @@ from utils import get_template
 from validate_cmd import validate_software, validate_vuln
 
 
-def gen_build(app_template: dict, schema: dict = None):
-    # build in CVE schema has higher priority
-    if schema and "build" in schema:
-        build = schema["build"]
+def gen_build(app_template: dict, vuln_schema: dict = None) -> str:
+    """
+    generate app build dockerfile snippet
+
+    'build' in CVE schema has higher priority
+
+    Args:
+        app_template (dict): app json file.
+        vuln_schema (dict, optional): bug json file. Defaults to None.
+
+    Returns:
+        str: app build dockerfile snippet
+    """
+    if vuln_schema and "build" in vuln_schema:
+        build = vuln_schema["build"]
     elif "build" in app_template:
         build = app_template["build"]
     else:
@@ -47,24 +58,33 @@ def gen_poc(trigger: dict, kernel: bool = False) -> str:
     return poc
 
 
-def gen_user_reproduce(schema):
-    # validate the schema
-    if not validate_vuln(schema):
+def gen_user_reproduce(vuln_schema: dict) -> str:
+    """
+    generate complete user CVE dockerfile
+
+    Args:
+        vuln_schema (dict): CVE json file
+
+    Returns:
+        str: complete user CVE dockerfile
+    """
+
+    if not validate_vuln(vuln_schema):
         exit(1)
-    app_template = get_template(schema["category"])
+    app_template = get_template(vuln_schema["category"])
     if not validate_software(app_template):
         exit(1)
 
     out_file = ""
-    out_file += gen_os(app_template["environment"], schema["id"])
+    out_file += gen_os(app_template["environment"], vuln_schema["id"])
     out_file += "WORKDIR /root\n"
-    if "version" in schema:
-        out_file += gen_soft(app_template["software"], schema["version"])
+    if "version" in vuln_schema:
+        out_file += gen_soft(app_template["software"], vuln_schema["version"])
     else:
         # tarball need not have version
         out_file += gen_soft(app_template["software"])
-    out_file += gen_build(app_template, schema)
-    out_file += gen_poc(schema["trigger"])
+    out_file += gen_build(app_template, vuln_schema)
+    out_file += gen_poc(vuln_schema["trigger"])
     out_file += "RUN bash build.sh || true\n"
     out_file += 'CMD ["/bin/bash"]\n'
 

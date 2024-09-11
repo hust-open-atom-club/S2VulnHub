@@ -10,7 +10,7 @@ from rich.logging import RichHandler
 logging.basicConfig(level="NOTSET", format="%(message)s", handlers=[RichHandler()])
 logger = logging.getLogger("s2vulhub")
 
-def get_template(app_name):
+def get_template(app_name:str)->dict:
     try:
         with open(f"../data/apps/{app_name}.json", "r") as f:
             schema = json.loads(f.read())

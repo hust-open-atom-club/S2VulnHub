@@ -12,15 +12,24 @@ from utils import (
 )
 
 
-# line: [commit, tag]
-def build_and_run(schema, line=None):
+def build_and_run(vuln_schema: dict, commit_tag: list = None) -> bool:
+    """
+    build and run the CVE docker image
+
+    Args:
+        vuln_schema (dict): CVE json file
+        commit_tag (list, optional): [commit, tag]. required for git repo. Defaults to None for released package.
+
+    Returns:
+        bool: if the commit or package is vulnerable. True means vulnerable.
+    """
     if not check_docker_permission():
         add_user_to_docker_group()
         exit(1)
 
-    if line:
-        schema["version"] = line[0]
-    out_file = gen_user_reproduce(schema)
+    if commit_tag:
+        vuln_schema["version"] = commit_tag[0]
+    out_file = gen_user_reproduce(vuln_schema)
     out_file = out_file.replace('CMD ["/bin/bash"]', 'CMD ["bash", "trigger.sh"]')
 
     with open("../data/user_dockerfile/Dockerfile", "w") as f:
@@ -53,37 +62,48 @@ def build_and_run(schema, line=None):
         and run_ret.returncode != 1
         and run_ret.returncode != 137
     ):
-        return True  # True means vulnerable
+        return True
     elif run_ret.returncode == 1 and errstr.find("Sanitizer") != -1:
         return True
     else:
-        return False  # False means safe
+        return False
 
 
-def scan_version(schema, target_tags=None):
+def scan_version(vuln_schema: dict, target_tags: list = None):
+    """
+    scan target_tags of a git repo
+
+    scan the given package in CVE schema
+
+    show result in console
+
+    Args:
+        vuln_schema (dict): CVE json file
+        target_tags (list, optional): tag name list. Defaults to None. None means scan all tags.
+    """
     console = Console()
 
-    app_template = get_template(schema["category"])
+    app_template = get_template(vuln_schema["category"])
     if app_template["software"]["source"] == "tarball":
         logger.info(
-            f'This software source is tarball, only the package in {schema["category"]}.json will be scanned and -t option will be ignored'
+            f'This software source is tarball, only the package in {vuln_schema["category"]}.json will be scanned and -t option will be ignored'
         )
         with console.status(
-            f'[bold blue]reproducing {schema["id"]} in {schema["category"]}...'
+            f'[bold blue]reproducing {vuln_schema["id"]} in {vuln_schema["category"]}...'
         ) as status:
-            vul_status = build_and_run(schema)
+            vul_status = build_and_run(vuln_schema)
             if vul_status:
                 console.log(f"[bold red]:pile_of_poo: package is vulnerable")
             else:
                 console.log(f"[green]:thumbs_up: package is safe")
             return
 
-    tags = list_tags(
+    all_tags = list_tags(
         f'https://github.com/{app_template["software"]["user"]}/{app_template["software"]["repo"]}'
     )
-    tags.reverse()
+    all_tags.reverse()
     ultimate_tags = []
-    for tag in tags:
+    for tag in all_tags:
         if target_tags is None or tag[1] in target_tags:
             ultimate_tags.append(tag)
 
@@ -92,7 +112,7 @@ def scan_version(schema, target_tags=None):
         f'[bold blue]reproducing {app_template["software"]["user"]}/{app_template["software"]["repo"]} version {ultimate_tags[ultimate_tags_idx][1]}...'
     ) as status:
         for tag in ultimate_tags:
-            vul_status = build_and_run(schema, tag)
+            vul_status = build_and_run(vuln_schema, tag)
             if vul_status:
                 console.log(f"[bold red]:pile_of_poo: {tag[1]} is vulnerable")
             else:

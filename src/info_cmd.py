@@ -2,9 +2,10 @@ import re
 import subprocess
 
 import requests
+from typing import List
 
 
-def get_raw_arch(app_name):
+def get_raw_arch(app_name: str) -> str | None:
     resp = requests.get(
         f"https://gitlab.archlinux.org/archlinux/packaging/packages/{app_name}/-/raw/main/PKGBUILD?ref_type=heads"
     )
@@ -14,7 +15,7 @@ def get_raw_arch(app_name):
         return None
 
 
-def get_raw_fedora(app_name):
+def get_raw_fedora(app_name: str) -> str | None:
     resp = requests.get(
         f"https://src.fedoraproject.org/rpms/{app_name}/raw/rawhide/f/{app_name}.spec"
     )
@@ -24,7 +25,10 @@ def get_raw_fedora(app_name):
         return None
 
 
-def get_raw(app_name):
+def get_raw(app_name: str):
+    """
+    print raw info
+    """
     arch_info = get_raw_arch(app_name)
     if arch_info is not None:
         print("Arch info raw:")
@@ -40,7 +44,7 @@ def get_raw(app_name):
         print("No fedora info, please use a different app name")
 
 
-def get_depend_arch(app_name):
+def get_depend_arch(app_name: str):
     raw = get_raw_arch(app_name)
     if raw is None:
         print("No arch info, please use a different app name")
@@ -56,7 +60,7 @@ def get_depend_arch(app_name):
     print(depends)
 
 
-def get_depend_fedora(app_name):
+def get_depend_fedora(app_name: str):
     raw = get_raw_fedora(app_name)
     if raw is None:
         print("No fedora info, please use a different app name")
@@ -71,13 +75,16 @@ def get_depend_fedora(app_name):
     print(depends)
 
 
-def get_depend(app_name):
+def get_depend(app_name: str):
+    """
+    print depend info
+    """
     get_depend_arch(app_name)
     print("-----     -----     -----     -----     -----     -----")
     get_depend_fedora(app_name)
 
 
-def get_build_arch(app_name):
+def get_build_arch(app_name: str):
     raw = get_raw_arch(app_name)
     if raw is None:
         print("No arch info, please use a different app name")
@@ -97,7 +104,7 @@ def get_build_arch(app_name):
             print(line)
 
 
-def get_cxx(app_name, path):
+def get_cxx(app_name: str, path: str):
     url = f'https://api.github.com/repos/{app_name}/contents/{path if path is not None else ""}'
 
     resp = requests.get(url)
@@ -132,10 +139,15 @@ def get_cxx(app_name, path):
             print("mozbuild is detected!")
 
 
-def list_tags(url):
+def list_tags(url: str) -> List[List[str]]:
     """
-    Given a repository URL, list all tags for that repository without cloning it.
-    This function use "git ls-remote", so the "git" command line program must be available.
+    list all tags by "git ls-remote" without cloning repo
+
+    Args:
+        url (str): git repo url
+
+    Returns:
+        List[List[str, str]]: [[commit id, tag], [commit id, tag]]
     """
     # Run the 'git' command to fetch and list remote tags
     result = subprocess.run(
