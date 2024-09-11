@@ -25,11 +25,11 @@ def validate_software(instance: dict) -> bool:
                 "properties": {
                     "source": {"type": "string", "enum": ["github", "tarball"]}
                 },
+                "required": ["source"],
                 "allOf": [
                     {
                         "if": {
                             "properties": {"source": {"const": "github"}},
-                            "required": ["source"],
                         },
                         "then": {
                             "properties": {
@@ -42,11 +42,23 @@ def validate_software(instance: dict) -> bool:
                     {
                         "if": {
                             "properties": {"source": {"const": "tarball"}},
-                            "required": ["source"],
                         },
                         "then": {
-                            "properties": {"url": {"type": "string", "format": "uri"}},
-                            "required": ["url"],
+                            "properties": {
+                                "packages": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "url": {"type": "string", "format": "uri"},
+                                            "version": {"type": "string"},
+                                        },
+                                        "required": ["url"],
+                                        "additionalProperties": False,
+                                    },
+                                },
+                            },
+                            "required": ["packages"],
                         },
                     },
                 ],

@@ -1,6 +1,6 @@
 {
-    "schema_version": "1.0", 
-    "name": "libzip-1.2.0",
+    "schema_version": "1.0",
+    "name": "libzip",
     "environment": {
         "distro": "ubuntu",
         "dependencies": [
@@ -12,8 +12,11 @@
     },
     "software": {
         "source": "tarball",
-        "url": "https://github.com/Yeeyooo/libzip-1.2.0/raw/main/libzip-1.2.0.tar.gz",
-        "name": "libzip-1.2.0"
+        "packages": [
+            {
+                "url": "https://github.com/Yeeyooo/libzip-1.2.0/raw/main/libzip-1.2.0.tar.gz"
+            }
+        ]
     },
     "build": "CFLAGS='-g -O0 -fsanitize=address' ./configure\nmake -j"
 }

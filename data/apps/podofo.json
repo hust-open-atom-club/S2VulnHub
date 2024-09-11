@@ -3,12 +3,19 @@
   "name": "podofo",
   "environment": {
     "distro": "ubuntu",
-    "dependencies": ["libfreetype6-dev", "libfontconfig1-dev", "pkg-config"]
+    "dependencies": [
+      "libfreetype6-dev",
+      "libfontconfig1-dev",
+      "pkg-config"
+    ]
   },
   "software": {
     "source": "tarball",
-    "url": "https://github.com/mudongliang/source-packages/raw/master/CVE-2017-5854/podofo-0.9.4.tar.gz",
-    "name": "podofo"
+    "packages": [
+      {
+        "url": "https://github.com/mudongliang/source-packages/raw/master/CVE-2017-5854/podofo-0.9.4.tar.gz"
+      }
+    ]
   },
   "build": "mkdir build\ncd build\ncmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS='-fsanitize=address'\nmake -j"
 }

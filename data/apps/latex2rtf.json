@@ -6,7 +6,11 @@
     },
     "software": {
         "source": "tarball",
-        "url": "https://sourceforge.net/projects/latex2rtf/files/latex2rtf-unix/2.3.8/latex2rtf-2.3.8.tar.gz"
+        "packages": [
+            {
+                "url": "https://sourceforge.net/projects/latex2rtf/files/latex2rtf-unix/2.3.8/latex2rtf-2.3.8.tar.gz"
+            }
+        ]
     },
     "build": "make -j\nmake install\nmake check\nmake install"
 }

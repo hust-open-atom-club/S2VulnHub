@@ -1,0 +1,21 @@
+{
+    "schema_version": "1.0",
+    "name": "python",
+    "environment": {
+        "distro": "ubuntu"
+    },
+    "software": {
+        "source": "tarball",
+        "packages": [
+            {
+                "url": "https://github.com/mudongliang/source-packages/raw/master/CVE-2014-4616/Python-2.7.1.tgz",
+                "version": "2.7.1"
+            },
+            {
+                "url": "https://github.com/mudongliang/source-packages/raw/master/CVE-2014-7185/Python-2.7.6.tgz",
+                "version": "2.7.6"
+            }
+        ]
+    },
+    "build": "./configure\nmake -j"
+}

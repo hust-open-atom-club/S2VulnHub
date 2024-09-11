@@ -13,8 +13,11 @@
     },
     "software": {
         "source": "tarball",
-        "url": "https://rzip.samba.org/ftp/rzip/rzip-2.1.tar.gz",
-        "name": "rzip-2.1"
+        "packages": [
+            {
+                "url": "https://rzip.samba.org/ftp/rzip/rzip-2.1.tar.gz"
+            }
+        ]
     },
     "build": "CFLAGS='-std=c99 -fsanitize=address' ./configure\nmake -j"
 }

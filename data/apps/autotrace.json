@@ -13,8 +13,11 @@
   },
   "software": {
     "source": "tarball",
-    "url": "https://github.com/c8ef/VulPackpages/raw/main/autotrace.zip",
-    "name": "autotrace"
+    "packages": [
+      {
+        "url": "https://github.com/c8ef/VulPackpages/raw/main/autotrace.zip"
+      }
+    ]
   },
   "build": "chmod +x ./configure\nCFLAGS='-fsanitize=address' ./configure\nmake -j"
 }
