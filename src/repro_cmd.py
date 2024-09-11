@@ -76,7 +76,10 @@ def gen_user_reproduce(vuln_schema: dict) -> str:
         exit(1)
 
     out_file = ""
-    out_file += gen_os(app_template["environment"], vuln_schema["id"])
+    out_file += gen_os(
+        app_template["environment"] if "environment" in app_template else None,
+        vuln_schema["id"],
+    )
     out_file += "WORKDIR /root\n"
     if "version" in vuln_schema:
         out_file += gen_soft(app_template["software"], vuln_schema["version"])

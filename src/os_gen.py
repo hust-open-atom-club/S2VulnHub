@@ -92,7 +92,7 @@ def gen_os(environment: dict, cve_id: str) -> str:
         str: os dockerfile snippet
     """
     env = ""
-    if "distro" not in environment:
+    if not environment:
         env = gen_default_os()
     elif environment["distro"] == "ubuntu":
         # infer version from cve_id
