@@ -91,16 +91,12 @@ $ eval $(pdm venv activate in-project)
 (s2vulnhub-3.10)$ docker run --device=/dev/kvm syzbot:f3
 ```
 
-此时启动 Terminal 2
+等待 qemu 虚拟机加载完成后启动 Terminal 2
 
 ```
 # Terminal 2
 
-(s2vulnhub-3.10)$ docker exec -it `docker ps -a --filter ancestor=syzbot:f3 -q` /bin/bash
-
-root@86a22cf5a5db:~# ./trigger.sh
-
-root@syzkaller:~# ./poc 
+(s2vulnhub-3.10)$ docker exec -it `docker ps -a --filter ancestor=syzbot:f3 -q | head -n 1` bash trigger.sh
 ```
 
 此时可以在 Terminal 1 中观察到内核崩溃

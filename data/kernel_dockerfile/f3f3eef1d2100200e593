@@ -3,6 +3,6 @@ WORKDIR /root
 RUN wget -O bzImage.xz 'https://storage.googleapis.com/syzbot-assets/c02d1542e886/bzImage-7b4f2bc9.xz'
 RUN unxz bzImage.xz
 RUN wget -O poc.c 'https://syzkaller.appspot.com/text?tag=ReproC&x=128b1d53180000'
-RUN echo -n Z2NjIHBvYy5jIC1scHRocmVhZCAtc3RhdGljIC1vIHBvYwouL3NjcHRvdm0gcG9jCi4vY29ubmVjdHZt | base64 -d > trigger.sh
+RUN echo -n Z2NjIHBvYy5jIC1scHRocmVhZCAtc3RhdGljIC1vIHBvYwouL3NjcHRvdm0gcG9jCmlmICEgZ3JlcCAtcSAnYmFzaCAtbCcgY29ubmVjdHZtOyB0aGVuCglzZWQgLWkgJyRzLyQvICJlY2hvIGV4ZWN1dGluZyBwb2MuLi47IFwuXC9wb2M7IGJhc2ggLWwiLycgY29ubmVjdHZtCmZpCi4vY29ubmVjdHZt | base64 -d > trigger.sh
 RUN chmod +x trigger.sh
 CMD ["./startvm"]
