@@ -1,0 +1,15 @@
+#!/bin/bash
+
+export IMAGE=image
+export IMG_NAME=bullseye
+
+if [ ! -f ".port" ]; then
+	port=$(date +%N);
+	((port=$port%60000+5525));
+	echo "using $port"
+	echo -n $port > .port
+fi;
+
+port_num=$(cat .port);
+
+scp -r -i ${IMAGE}/${IMG_NAME}.id_rsa -P $port_num -o "StrictHostKeyChecking no" $@ root@localhost:/root/

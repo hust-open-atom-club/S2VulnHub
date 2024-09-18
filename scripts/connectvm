@@ -1,0 +1,12 @@
+#!/bin/bash
+
+export IMAGE=image
+export IMG_NAME=bullseye
+
+if [ ! -f ".port" ]; then
+echo "Please start vm first"
+fi;
+
+port_num=$(cat .port);
+
+ssh -i ${IMAGE}/${IMG_NAME}.id_rsa -p $port_num -o "StrictHostKeyChecking no" root@localhost

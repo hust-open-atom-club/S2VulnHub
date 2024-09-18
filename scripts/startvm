@@ -1,0 +1,24 @@
+#!/bin/bash
+
+export KERNEL=bzImage
+export IMAGE=image
+export IMG_NAME=bullseye
+
+# get random port number and remove leading zeros
+port=$(date +%N)
+port=$(echo $port | sed 's/^0*//')
+((port=port%60000+5525))
+echo "using $port"
+echo -n $port > .port
+
+qemu-system-x86_64 \
+  -kernel ./${KERNEL} \
+  -append "console=ttyS0 root=/dev/sda debug earlyprintk=serial slub_debug=QUZ nokaslr panic=86400 panic_on_oops=1 panic_on_warn=0 net.ifnames=0"\
+  -hda ./${IMAGE}/${IMG_NAME}.img \
+  -net user,hostfwd=tcp::$port-:22 -net nic \
+  -enable-kvm \
+  -nographic \
+  -m 2G \
+  -smp 2 \
+  -pidfile vm.pid \
+  2>&1 | tee vm.log
