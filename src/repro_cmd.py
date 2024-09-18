@@ -64,7 +64,7 @@ def gen_user_reproduce(vuln_schema: dict) -> str:
         vuln_schema (dict): CVE json file
 
     Returns:
-        str: complete user CVE dockerfile
+        str: complete user CVE dockerfile end with 'CMD ["/bin/bash"]'
     """
 
     if not validate_vuln(vuln_schema):
@@ -128,20 +128,21 @@ def gen_bzImage(kernel_template: dict, vuln: dict) -> str:
 # │   ├── build.sh
 
 
-def gen_kernel_reproduce(vuln):
-    """generate kernel dockerfile = rootfs + bzImage + poc
+def gen_kernel_reproduce(vuln: dict) -> str:
+    """
+    generate kernel dockerfile = rootfs + bzImage + poc
 
-        rootfs = jingyisong/kernel_bug_reproduce:bullseye
+    rootfs = jingyisong/kernel_bug_reproduce:bullseye
 
-        bzImage = (source + config) | existing bzImage
+    bzImage = (source + config) | existing bzImage
 
-        poc = poc.c + trigger.sh
+    poc = poc.c + trigger.sh
 
     Args:
-        vuln: kernel vulnerability schema
+        vuln (dict): kernel vulnerability schema
 
     Returns:
-        full kernel dockerfile
+        str: complete kernel dockerfile end with 'CMD ["./startvm"]'
     """
     with open(f"../data/apps/kernel.json", "r") as f:
         kernel_template = json.loads(f.read())
