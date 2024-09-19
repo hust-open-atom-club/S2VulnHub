@@ -1,9 +1,8 @@
 {
     "schema_version": "1.0",
-    "name": "xerces-c-3.1.1",
+    "name": "xerces-c",
     "environment": {
-        "distro": "ubuntu",
-        "dependencies": []
+        "distro": "ubuntu"
     },
     "software": {
         "source": "tarball",

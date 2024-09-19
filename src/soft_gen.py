@@ -1,6 +1,7 @@
 import os
 from typing import Tuple
 from urllib.parse import urlparse
+from utils import logger
 
 
 def extract_name_and_ext(url: str) -> Tuple[str, str]:
@@ -28,8 +29,8 @@ def gen_soft(software: dict, version: str = None) -> str:
     set workdir and checkout to the vulnerable commit id if version is not None
 
     Args:
-        software (dict): software schema
-        version (str, optional): vulnerable software commit id. Defaults to None.
+        software (dict): software value in app template
+        version (str, optional): software commit id or version number. Defaults to None.
 
     Returns:
         str: software dockerfile snippet
@@ -41,10 +42,24 @@ def gen_soft(software: dict, version: str = None) -> str:
             f'RUN git clone https://github.com/{software["user"]}/{software["repo"]}\n'
         )
         soft += f'WORKDIR /root/{software["repo"]}\n'
-        if version is not None:
+        if version:
             soft += f"RUN git checkout {version}\n"
+        else:
+            raise Exception("commit id is not provided")
     else:
-        url = software["url"]
+        # get url for tarball
+        if not version:
+            url = software["packages"][0]["url"]
+            logger.warning(f"software version not provided, using default version")
+        else:
+            flag = False
+            for pkg in software["packages"]:
+                if "version" in pkg and pkg["version"] == version:
+                    flag = True
+                    url = pkg["url"]
+                    break
+            if not flag:
+                raise Exception(f"version {version} not found in software packages")
         soft += f"RUN wget {url}\n"
 
         fname, ext = extract_name_and_ext(url)

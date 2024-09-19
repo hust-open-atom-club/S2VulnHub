@@ -12,13 +12,13 @@ from utils import (
 )
 
 
-def build_and_run(vuln_schema: dict, commit_tag: list = None) -> bool:
+def build_and_run(vuln_schema: dict, version: str = None) -> bool:
     """
     build and run the CVE docker image
 
     Args:
         vuln_schema (dict): CVE json file
-        commit_tag (list, optional): [commit, tag]. required for git repo. Defaults to None for released package.
+        version (str, optional): Commit id required for git repo, version number optional for released package.
 
     Returns:
         bool: if the commit or package is vulnerable. True means vulnerable.
@@ -27,8 +27,9 @@ def build_and_run(vuln_schema: dict, commit_tag: list = None) -> bool:
         add_user_to_docker_group()
         exit(1)
 
-    if commit_tag:
-        vuln_schema["version"] = commit_tag[0]
+    if version:
+        # revise version info
+        vuln_schema["version"] = version
     out_file = gen_user_reproduce(vuln_schema)
     out_file = out_file.replace('CMD ["/bin/bash"]', 'CMD ["bash", "trigger.sh"]')
 
@@ -69,7 +70,7 @@ def build_and_run(vuln_schema: dict, commit_tag: list = None) -> bool:
         return False
 
 
-def scan_version(vuln_schema: dict, target_tags: list = None):
+def scan_version(vuln_schema: dict, input_tags: list = None):
     """
     scan target_tags of a git repo
 
@@ -82,44 +83,57 @@ def scan_version(vuln_schema: dict, target_tags: list = None):
         target_tags (list, optional): tag name list. Defaults to None. None means scan all tags.
     """
     console = Console()
-
     app_template = get_template(vuln_schema["category"])
+    target_tags = []
+
+    # get valid tags first
     if app_template["software"]["source"] == "tarball":
-        logger.info(
-            f'This software source is tarball, only the package in {vuln_schema["category"]}.json will be scanned and -t option will be ignored'
+        _ = []
+        all_tags = []
+        for pkg in app_template["software"]["packages"]:
+            if "version" in pkg:
+                all_tags.append(pkg["version"])
+        if not all_tags:
+            _.append("default")
+            logger.info("the package only has default version")
+        elif input_tags:
+            _ = list(set(all_tags) & set(input_tags))
+        else:
+            _ = all_tags
+        target_tags = [[item, item] for item in _]
+    else:
+        all_tags = list_tags(
+            f'https://github.com/{app_template["software"]["user"]}/{app_template["software"]["repo"]}'
         )
-        with console.status(
-            f'[bold blue]reproducing {vuln_schema["id"]} in {vuln_schema["category"]}...'
-        ) as status:
-            vul_status = build_and_run(vuln_schema)
-            if vul_status:
-                console.log(f"[bold red]:pile_of_poo: package is vulnerable")
-            else:
-                console.log(f"[green]:thumbs_up: package is safe")
-            return
+        all_tags.reverse()
+        for tag in all_tags:
+            if input_tags is None or tag[1] in input_tags:
+                target_tags.append(tag)
 
-    all_tags = list_tags(
-        f'https://github.com/{app_template["software"]["user"]}/{app_template["software"]["repo"]}'
-    )
-    all_tags.reverse()
-    ultimate_tags = []
-    for tag in all_tags:
-        if target_tags is None or tag[1] in target_tags:
-            ultimate_tags.append(tag)
+    if not target_tags:
+        logger.warning("no valid version to scan")
+        return
 
-    ultimate_tags_idx = 0
+    # scan valid tags
+    i = 0
     with console.status(
-        f'[bold blue]reproducing {app_template["software"]["user"]}/{app_template["software"]["repo"]} version {ultimate_tags[ultimate_tags_idx][1]}...'
+        f'[bold blue]reproducing {vuln_schema["id"]} in {vuln_schema["category"]} version {target_tags[i][1]}...'
     ) as status:
-        for tag in ultimate_tags:
-            vul_status = build_and_run(vuln_schema, tag)
-            if vul_status:
-                console.log(f"[bold red]:pile_of_poo: {tag[1]} is vulnerable")
-            else:
-                console.log(f"[green]:thumbs_up: {tag[1]} is safe")
-            ultimate_tags_idx += 1
-            if ultimate_tags_idx == len(ultimate_tags):
-                break
-            status.update(
-                f'[bold blue]reproducing {app_template["software"]["user"]}/{app_template["software"]["repo"]} version {ultimate_tags[ultimate_tags_idx][1]}...'
+        for i in range(len(target_tags)):
+            vul_status = build_and_run(
+                vuln_schema,
+                None if target_tags[i][0] == "default" else target_tags[i][0],
             )
+            if vul_status:
+                console.log(
+                    f'[bold red]:pile_of_poo: {vuln_schema["category"]} version {target_tags[i][1]} is vulnerable'
+                )
+            else:
+                console.log(
+                    f'[green]:thumbs_up: {vuln_schema["category"]} version {target_tags[i][1]} is safe'
+                )
+
+            if i + 1 < len(target_tags):
+                status.update(
+                    f'[bold blue]reproducing {vuln_schema["id"]} in {vuln_schema["category"]} version {target_tags[i+1][1]}...'
+                )
