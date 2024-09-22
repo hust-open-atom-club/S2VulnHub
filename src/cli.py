@@ -6,7 +6,7 @@ from pprint import pprint
 
 from info_cmd import get_build_arch, get_depend, get_raw, list_tags
 from repro_cmd import gen_kernel_reproduce, gen_user_reproduce, get_template
-from scan_cmd import scan_version
+from scan_cmd import scan_version, kernel_scan_version
 from utils import logger
 from validate_cmd import validate_software, validate_vuln
 
@@ -40,6 +40,16 @@ if __name__ == "__main__":
         action="append",
     )
 
+    scan.add_argument(
+        "-k", "--kernel", action="store_true", help="scan Linux kernel vulnerability"
+    )
+
+    scan.add_argument(
+        "-p",
+        "--path",
+        dest="kpath",
+        help="local linux source code path, required if no bzImage",
+    )
     # subcommand info
     info = subparsers.add_parser(
         "info",
@@ -84,12 +94,18 @@ if __name__ == "__main__":
             logger.error(e)
 
     elif args.command == "scan":
-        with open(f"../data/user_cve/{args.CVE}.json", "r") as f:
-            schema = json.loads(f.read())
-        if args.target_tags is None:
-            scan_version(schema)
+        if args.kernel:
+            with open(f"../data/kernel_bug/{args.CVE}.json", "r") as f:
+                schema = json.loads(f.read())
+            # TODO: 检查 path 是否合法
+            kernel_scan_version(
+                schema, args.target_tags if args.target_tags else None, args.kpath
+            )
+
         else:
-            scan_version(schema, args.target_tags)
+            with open(f"../data/user_cve/{args.CVE}.json", "r") as f:
+                schema = json.loads(f.read())
+            scan_version(schema, args.target_tags if args.target_tags else None)
     elif args.command == "info":
         if args.raw:
             get_raw(args.app)

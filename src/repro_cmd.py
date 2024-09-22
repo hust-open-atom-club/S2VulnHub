@@ -82,7 +82,6 @@ def gen_user_reproduce(vuln_schema: dict) -> str:
     if "version" in vuln_schema:
         out_file += gen_soft(app_template["software"], vuln_schema["version"])
     else:
-        # tarball need not have version
         out_file += gen_soft(app_template["software"])
     out_file += gen_build(app_template, vuln_schema)
     out_file += gen_poc(vuln_schema["trigger"])
@@ -92,28 +91,30 @@ def gen_user_reproduce(vuln_schema: dict) -> str:
     return out_file
 
 
-def gen_bzImage(kernel_template: dict, vuln: dict) -> str:
+def gen_bzImage(kernel_template: dict, vuln: dict, use_configfile: bool = False) -> str:
     """
-    generate bzImage dockerfile snippet
+    if use_configfile: download configfile
 
-    bzImage = (source + config) | existing bzImage
+    else: download bzImage
 
     Args:
         kernel_template (dict): info about kernel
         trigger (dict): info about vulnerability trigger
+        use_configfile (bool, optional): use configfile when it is true, otherwise use bzImage. Defaults to False.
 
     Returns:
         str: dockerfile snippet for bzImage
     """
     img = ""
     trigger = vuln["trigger"]
-    if "bzImage" in trigger:
+    if not use_configfile and "bzImage" in trigger:
         img += f"RUN wget -O bzImage.xz '{trigger['bzImage']}'\n"
         img += "RUN unxz bzImage.xz\n"
-    else:
+    elif "configfile" in trigger:
+        # mount local source code (/root/linux) rather than clone it into docker, so do not call soft_gen()
         img += f"RUN wget -O .config '{trigger['configfile']}'\n"
-        img += gen_soft(kernel_template["software"], vuln["version"])
         img += gen_build(kernel_template)
+    # TODO: bzImage and config file must has at least one in schema
     return img
 
 
@@ -128,7 +129,7 @@ def gen_bzImage(kernel_template: dict, vuln: dict) -> str:
 # │   ├── build.sh
 
 
-def gen_kernel_reproduce(vuln: dict) -> str:
+def gen_kernel_reproduce(vuln: dict, use_configfile: bool = False) -> str:
     """
     generate kernel dockerfile = rootfs + bzImage + poc
 
@@ -150,8 +151,8 @@ def gen_kernel_reproduce(vuln: dict) -> str:
     out_file = ""
     out_file += "FROM jingyisong/kernel_bug_reproduce:bullseye\n"
     out_file += "WORKDIR /root\n"
-    out_file += gen_bzImage(kernel_template, vuln)
+    out_file += gen_bzImage(kernel_template, vuln, use_configfile)
     out_file += gen_poc(vuln["trigger"], True)
-    out_file += 'CMD ["./startvm"]\n'
+    out_file += 'CMD ["bash"]\n'
 
     return out_file

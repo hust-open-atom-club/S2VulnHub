@@ -7,10 +7,12 @@ import subprocess
 
 from rich.logging import RichHandler
 
-logging.basicConfig(level="NOTSET", format="%(message)s", handlers=[RichHandler()])
+# set logger level `INFO` to ommit `DEBUG` log from docker-py
+logging.basicConfig(level="INFO", format="%(message)s", handlers=[RichHandler()])
 logger = logging.getLogger("s2vulhub")
 
-def get_template(app_name:str)->dict:
+
+def get_template(app_name: str) -> dict:
     try:
         with open(f"../data/apps/{app_name}.json", "r") as f:
             schema = json.loads(f.read())
