@@ -2,7 +2,7 @@
     "schema_version": "1.0",
     "id": "07762f019fd03d01f04c",
     "category": "kernel",
-    "version": "614da38e2f7afe9e01c6e359dfa09285f26fa381",
+    "version": "59d2f5b7392e988a391e6924e177c1a68d50223d",
     "trigger": {
         "poc": "https://syzkaller.appspot.com/text?tag=ReproC&x=1017a634980000",
         "bzImage": "https://storage.googleapis.com/syzbot-assets/839c73939115/bzImage-614da38e.xz",
