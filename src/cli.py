@@ -101,8 +101,11 @@ if __name__ == "__main__":
         if args.kernel:
             with open(f"../data/kernel_bug/{args.CVE}.json", "r") as f:
                 schema = json.loads(f.read())
-            if not os.path.exists(args.kpath):
-                raise Exception("local linux source code path is not valid")
+            if args.target_tags or "bzImage" not in schema["trigger"]:
+                if not args.kpath:
+                    raise Exception("Please specify the path to the kernel source code")
+                elif not os.path.exists(args.kpath):
+                    raise Exception("local linux source code path is not valid")
             kernel_scan_version(
                 schema, args.target_tags if args.target_tags else None, args.kpath
             )
