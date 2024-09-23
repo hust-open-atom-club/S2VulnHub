@@ -1,6 +1,7 @@
 import subprocess
 import time
 import docker
+import git
 
 from rich.console import Console
 
@@ -193,6 +194,7 @@ def kernel_build_and_run(
         logger.warning(
             "specify commit id is not supported for this vulnerability since configfile is not provided"
         )
+        exit(1)
 
     # generate dockerfile and build docker image
     out_file = gen_kernel_reproduce(vuln_schema, True if commit_id else False)
@@ -243,10 +245,13 @@ def kernel_build_and_run(
     # if tty = False, line will not be a complete line
     # lead to docker log empty
     vm_log = kernel_container.exec_run("./startvm", stream=True, tty=True)
-    err_msg = "BUG: KASAN:"
+    # XXX: 每个漏洞的err_msg不一样
+    err_msg = "BUG: "
     for line in vm_log.output:
         decode_line = line.decode("utf-8", errors="ignore")
+        # logger.info(decode_line)
         print(decode_line, end="")
+        # XXX: 输出有可能被截断导致字符串检测失败
         if "login:" in decode_line:
             logger.info("running poc...")
             # TODO: use docker-py
@@ -277,11 +282,24 @@ def kernel_scan_version(
         target_tags (list, optional): tag name list. Defaults to None. None means scan all tags.
         linux_path (str, optional): Local linux source code path.
     """
-    # TODO: check if commit valid
+
+    def if_commit_valid(commit_id: str) -> bool:
+        repo = git.Repo(linux_path)
+        try:
+            repo.commit(vuln_schema["version"])
+        except git.exc.BadName:
+            logger.warning(
+                f'Commit {vuln_schema["version"]} does not exist in local repo'
+            )
+            exit(1)
+        return True
+
     if not target_tags:
+        if_commit_valid(vuln_schema["version"])
         vul_status = kernel_build_and_run(vuln_schema, None, linux_path)
     else:
         for tag in target_tags:
+            if_commit_valid(tag)
             vul_status = kernel_build_and_run(vuln_schema, tag, linux_path)
             if vul_status:
                 logger.info(f"version {tag} is vulnerable")
