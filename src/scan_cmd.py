@@ -291,16 +291,15 @@ def kernel_scan_version(
     def if_commit_valid(commit_id: str) -> bool:
         repo = git.Repo(linux_path)
         try:
-            repo.commit(vuln_schema["version"])
+            repo.commit(commit_id)
         except git.exc.BadName:
-            logger.warning(
-                f'Commit {vuln_schema["version"]} does not exist in local repo'
-            )
+            logger.warning(f"Commit {commit_id} does not exist in local repo")
             exit(1)
         return True
 
     if not target_tags:
-        if_commit_valid(vuln_schema["version"])
+        if "bzImage" not in vuln_schema["trigger"]:
+            if_commit_valid(vuln_schema["version"])
         vul_status = kernel_build_and_run(vuln_schema, None, linux_path)
     else:
         for tag in target_tags:
