@@ -9,6 +9,8 @@
     - [内核漏洞复现](#内核漏洞复现)
       - [本地 （以 syzbot 为例）](#本地-以-syzbot-为例)
       - [使用 docker hub 镜像（以 CVE-2023-0179 为例）](#使用-docker-hub-镜像以-cve-2023-0179-为例)
+  - [如何贡献](#如何贡献)
+    - [代码结构](#代码结构)
 
 ## 简介
 
@@ -80,26 +82,16 @@ $ eval $(pdm venv activate in-project)
 
 #### 本地 （以 syzbot 为例）
 
-``` 
+```
 # Terminal 1
 
-(s2vulnhub-3.10)$ python cli.py reproduce -k f3f3eef1d2100200e593
-
-(s2vulnhub-3.10)$ cd ../data/kernel_dockerfile
-(s2vulnhub-3.10)$ docker build -f f3f3eef1d2100200e593 -t syzbot:f3 .
-
-(s2vulnhub-3.10)$ docker run --device=/dev/kvm syzbot:f3
+(s2vulnhub-3.10)$ python cli.py scan -k f3f3eef1d2100200e593
 ```
-
-等待 qemu 虚拟机加载完成后启动 Terminal 2
-
-```
-# Terminal 2
-
-(s2vulnhub-3.10)$ docker exec -it `docker ps -a --filter ancestor=syzbot:f3 -q | head -n 1` bash trigger.sh
-```
-
-此时可以在 Terminal 1 中观察到内核崩溃
+运行该命令会：
+* 从 docker hub 拉取包含 bzImage 的基础镜像
+* 启动容器，下载漏洞复现材料 (bzImage/.config, poc)
+* 在容器中启动 qemu 虚拟机并运行 poc
+* 观察到内核崩溃
 
 #### 使用 docker hub 镜像（以 CVE-2023-0179 为例）
 
@@ -108,3 +100,19 @@ $ docker pull jingyisong/kernel_bug_reproduce:cve-2023-0179
 
 $ docker run --device=/dev/kvm -it cve-2023-0179:v1
 ```
+
+
+## 如何贡献
+### 代码结构
+```
+├── src
+│   ├── cli.py            # 工具入口，根据用户输入的命令调用相应功能函数
+│   ├── info_cmd.py       # 处理 info 命令
+│   ├── os_gen.py         # 被 repro_cmd.py 调用
+│   ├── repro_cmd.py      # 处理 reproduce 命令，生成 dockerfile
+│   ├── scan_cmd.py       # 处理 scan 命令，扫描软件的不同版本是否有漏洞
+│   ├── soft_gen.py       # 被 repro_cmd.py 调用
+│   ├── utils.py          # 设置 logger，添加用户到 docker 组
+│   └── validate_cmd.py   # 处理 validate 命令，检查软件和漏洞文件格式是否合法
+```
+参考各个函数的 docstring 获得更多信息
