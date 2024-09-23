@@ -142,7 +142,7 @@ def scan_version(vuln_schema: dict, input_tags: list = None):
                 )
 
 
-def build_bzImage(container, commit_id: str):
+def build_bzImage(container, commit_id: str) -> bool:
     """
     run build.sh to build bzImage in container and copy it to root dir
 
@@ -151,6 +151,9 @@ def build_bzImage(container, commit_id: str):
     Args:
         container (_type_): kernel container
         commit_id (str): build bzImage for which commit
+
+    Returns:
+        bool: if build success
     """
     commands = [
         "cp build.sh linux",
@@ -164,12 +167,13 @@ def build_bzImage(container, commit_id: str):
     build_log = container.exec_run(f"/bin/bash -c '{full_command}'", stream=True)
 
     # block till build finish
-    # TODO: if build fail
     for line in build_log.output:
         print(line.decode("utf-8"), end="")
         if "Kernel: arch/x86/boot/bzImage is ready" in line.decode("utf-8"):
             container.exec_run("cp /root/linux/arch/x86_64/boot/bzImage /root")
-            return
+            return True
+    logger.warning("build bzImage failed")
+    return False
 
 
 def kernel_build_and_run(
@@ -239,7 +243,8 @@ def kernel_build_and_run(
     # build bzImage from local source code if necessary
     if commit_id or "bzImage" not in vuln_schema["trigger"]:
         logger.info("building bzImage in docker...")
-        build_bzImage(kernel_container, commit_id)
+        if not build_bzImage(kernel_container, commit_id):
+            exit(1)
 
     logger.info("starting qemu in docker...")
     # if tty = False, line will not be a complete line
