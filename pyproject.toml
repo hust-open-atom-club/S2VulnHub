@@ -15,6 +15,7 @@ dependencies = [
     "bs4>=0.0.2",
     "logger>=1.4",
     "docker>=7.1.0",
+    "gitpython>=3.1.43",
 ]
 requires-python = ">=3.10"
 readme = "README.md"
