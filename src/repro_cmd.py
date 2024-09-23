@@ -52,6 +52,11 @@ def gen_poc(trigger: dict, kernel: bool = False) -> str:
             poc += f"RUN wget -O poc.c '{trigger['poc']}'\n"
         else:
             poc += f"RUN wget '{trigger['poc']}'\n"
+    if "guide" not in trigger:
+        # defualt guide for syzbot
+        trigger["guide"] = (
+            "gcc poc.c -lpthread -static -o poc\n./scptovm poc\nif ! grep -q 'bash -l' connectvm; then\n\tsed -i '$s/$/ \"echo executing poc...; \\.\\/poc; bash -l\"/' connectvm\nfi\n./connectvm"
+        )
     poc += f'RUN echo -n {base64.b64encode(str.encode(trigger["guide"])).decode()} | base64 -d > trigger.sh\n'
     return poc
 
@@ -114,7 +119,6 @@ def gen_bzImage(kernel_template: dict, vuln: dict, use_configfile: bool = False)
         # mount local source code (/root/linux) rather than clone it into docker, so do not call soft_gen()
         img += f"RUN wget -O .config '{trigger['configfile']}'\n"
         img += gen_build(kernel_template)
-    # TODO: bzImage and config file must has at least one in schema
     return img
 
 
@@ -129,7 +133,7 @@ def gen_bzImage(kernel_template: dict, vuln: dict, use_configfile: bool = False)
 # │   ├── build.sh
 
 
-def gen_kernel_reproduce(vuln: dict, use_configfile: bool = False) -> str:
+def gen_kernel_reproduce(vuln_schema: dict, use_configfile: bool = False) -> str:
     """
     generate kernel dockerfile = rootfs + bzImage + poc
 
@@ -140,19 +144,21 @@ def gen_kernel_reproduce(vuln: dict, use_configfile: bool = False) -> str:
     poc = poc.c + trigger.sh
 
     Args:
-        vuln (dict): kernel vulnerability schema
+        vuln_schema (dict): kernel vulnerability schema
 
     Returns:
         str: complete kernel dockerfile end with 'CMD ["./startvm"]'
     """
     with open(f"../data/apps/kernel.json", "r") as f:
         kernel_template = json.loads(f.read())
+    if not validate_vuln(vuln_schema) or not validate_software(kernel_template):
+        exit(1)
 
     out_file = ""
     out_file += "FROM jingyisong/kernel_bug_reproduce:bullseye\n"
     out_file += "WORKDIR /root\n"
-    out_file += gen_bzImage(kernel_template, vuln, use_configfile)
-    out_file += gen_poc(vuln["trigger"], True)
+    out_file += gen_bzImage(kernel_template, vuln_schema, use_configfile)
+    out_file += gen_poc(vuln_schema["trigger"], True)
     out_file += 'CMD ["bash"]\n'
 
     return out_file

@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import os
 from pprint import pprint
 
 from info_cmd import get_build_arch, get_depend, get_raw, list_tags
@@ -69,6 +70,9 @@ if __name__ == "__main__":
         "-c", "--CVE", help="the CVE id to validate", default=None, dest="CVE"
     )
     validate.add_argument(
+        "-k", "--kbug", help="the kernel bug id to validate", default=None, dest="kbug"
+    )
+    validate.add_argument(
         "-a", "--app", help="the app name to validate", default=None, dest="app"
     )
 
@@ -97,7 +101,8 @@ if __name__ == "__main__":
         if args.kernel:
             with open(f"../data/kernel_bug/{args.CVE}.json", "r") as f:
                 schema = json.loads(f.read())
-            # TODO: 检查 path 是否合法
+            if not os.path.exists(args.kpath):
+                raise Exception("local linux source code path is not valid")
             kernel_scan_version(
                 schema, args.target_tags if args.target_tags else None, args.kpath
             )
@@ -131,6 +136,10 @@ if __name__ == "__main__":
             except Exception as e:
                 logger.warning(e)
                 exit(1)
+            validate_vuln(schema)
+        if args.kbug is not None:
+            with open(f"../data/kernel_bug/{args.kbug}.json", "r") as f:
+                schema = json.loads(f.read())
             validate_vuln(schema)
         if args.app is not None:
             app_template = get_template(args.app)

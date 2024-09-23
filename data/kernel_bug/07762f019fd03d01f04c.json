@@ -6,6 +6,6 @@
     "trigger": {
         "poc": "https://syzkaller.appspot.com/text?tag=ReproC&x=1017a634980000",
         "bzImage": "https://storage.googleapis.com/syzbot-assets/839c73939115/bzImage-614da38e.xz",
-        "configfile":"https://syzkaller.appspot.com/text?tag=KernelConfig&x=f5d2cbf33633f507"
+        "configfile": "https://syzkaller.appspot.com/text?tag=KernelConfig&x=f5d2cbf33633f507"
     }
 }

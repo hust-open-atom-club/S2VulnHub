@@ -90,8 +90,10 @@ def validate_vuln(instance: dict) -> bool:
                     "poc": {"type": "string", "format": "uri"},
                     "guide": {"type": "string"},
                     "config": {"type": "array", "items": {"type": "string"}},
+                    "bzImage": {"type": "string", "format": "uri"},
+                    "configfile": {"type": "string", "format": "uri"},
                 },
-                "required": ["poc", "guide"],
+                "required": ["poc"],
             },
         },
         "required": ["schema_version", "id", "category", "trigger"],
@@ -99,6 +101,15 @@ def validate_vuln(instance: dict) -> bool:
 
     try:
         validate(instance, schema)
+        # CVE should have guide to build and run poc
+        if "CVE" in instance["id"] and "guide" not in instance["trigger"]:
+            logger.warning("guide is required for CVE")
+            return False
+        # kernel bug should have bzImage or configfile
+        if "kernel" in instance["category"]:
+            if "bzImage" not in instance["trigger"] and "configfile" not in instance["trigger"]:
+                logger.warning("bzImage or configfile is required for kernel")
+                return False
         return True
     except Exception as e:
         logger.warning(e.message)
