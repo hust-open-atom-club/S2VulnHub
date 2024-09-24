@@ -1,3 +1,4 @@
+import os
 import subprocess
 import time
 
@@ -184,20 +185,55 @@ def kernel_build_and_run(
 
     Args:
         vuln_schema (dict): bug json file
-        commit_id (str, optional): Required if no existing bzImage.
-        linux_path (str, optional): Required if no existing bzImage. local linux source code path.
+        commit_id (str, optional): None means use existing bzImage.
+        linux_path (str, optional): Required if commit_id is not None. local linux source code path.
 
     Returns:
         bool: if the commit or package is vulnerable. True means vulnerable.
     """
+
+    def check_parameters(vuln_schema: dict, commit_id: str, kpath: str) -> bool:
+        """
+        check if given linux source code path exists and if commit_id is valid in the repo
+
+        check if bzImage or version and configfile is provided
+
+        Args:
+            commit_id (str): commit id
+            kpath (str): linux source code path
+
+        Returns:
+            bool: if pass check
+        """
+        if not commit_id:
+            if "bzImage" in vuln_schema["trigger"]:
+                return True
+            else:
+                raise Exception("please provide bzImage or version and configfile")
+
+        if "configfile" not in vuln_schema["trigger"]:
+            raise Exception(
+                "specify commit id is not supported for this vulnerability since configfile is not provided"
+            )
+        if not kpath:
+            raise Exception(
+                "please use -kpath {dir} to set local linux source code path"
+            )
+        if not os.path.exists(kpath):
+            raise Exception("local linux source code path does not exist")
+
+        repo = git.Repo(kpath)
+        try:
+            repo.commit(commit_id)
+        except git.exc.BadName:
+            logger.warning(f"Commit {commit_id} does not exist in local repo")
+            exit(1)
+        return True
+
+    # do some check
+    check_parameters(vuln_schema, commit_id, linux_path)
     if not check_docker_permission():
         add_user_to_docker_group()
-        exit(1)
-
-    if commit_id and "configfile" not in vuln_schema["trigger"]:
-        logger.warning(
-            "specify commit id is not supported for this vulnerability since configfile is not provided"
-        )
         exit(1)
 
     # generate dockerfile and build docker image
@@ -217,11 +253,7 @@ def kernel_build_and_run(
         exit(1)
 
     # start container and get the container
-    if commit_id or "bzImage" not in vuln_schema["trigger"]:
-        if not linux_path:
-            raise Exception(
-                "please use -kpath {dir} to set local linux source code path"
-            )
+    if commit_id:
         subprocess.Popen(
             f"docker run -i --device=/dev/kvm --rm -v {linux_path}:/root/linux:Z testrepo",
             shell=True,
@@ -241,7 +273,7 @@ def kernel_build_and_run(
             break
 
     # build bzImage from local source code if necessary
-    if commit_id or "bzImage" not in vuln_schema["trigger"]:
+    if commit_id:
         logger.info("building bzImage in docker...")
         if not build_bzImage(kernel_container, commit_id):
             exit(1)
@@ -267,7 +299,6 @@ def kernel_build_and_run(
             time.sleep(5)  # wait a little to print more crash info
         # TODO: how to test if kernel is not vulnerable
         if err_msg in decode_line:
-            logger.info("This version is vulnerable")
             kernel_container.stop()
             return True
 
@@ -284,28 +315,26 @@ def kernel_scan_version(
 
     Args:
         vuln_schema (dict): CVE json file
-        target_tags (list, optional): tag name list. Defaults to None. None means scan all tags.
+        target_tags (list, optional): tag name list. Defaults to None. None means scan bzImage or (configfile + version).
         linux_path (str, optional): Local linux source code path.
     """
 
-    def if_commit_valid(commit_id: str) -> bool:
-        repo = git.Repo(linux_path)
-        try:
-            repo.commit(commit_id)
-        except git.exc.BadName:
-            logger.warning(f"Commit {commit_id} does not exist in local repo")
-            exit(1)
-        return True
-
     if not target_tags:
-        if "bzImage" not in vuln_schema["trigger"]:
-            if_commit_valid(vuln_schema["version"])
-        vul_status = kernel_build_and_run(vuln_schema, None, linux_path)
-    else:
-        for tag in target_tags:
-            if_commit_valid(tag)
-            vul_status = kernel_build_and_run(vuln_schema, tag, linux_path)
-            if vul_status:
-                logger.info(f"version {tag} is vulnerable")
-            else:
-                logger.info(f"version {tag} is safe")
+        if "bzImage" in vuln_schema["trigger"]:
+            vul_status = kernel_build_and_run(vuln_schema)
+        else:
+            vul_status = kernel_build_and_run(
+                vuln_schema, vuln_schema["version"], linux_path
+            )
+
+        if vul_status:
+            logger.info(f"version is vulnerable")
+        else:
+            logger.info(f"version is safe")
+
+    for tag in target_tags:
+        vul_status = kernel_build_and_run(vuln_schema, tag, linux_path)
+        if vul_status:
+            logger.info(f"version {tag} is vulnerable")
+        else:
+            logger.info(f"version {tag} is safe")

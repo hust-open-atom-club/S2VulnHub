@@ -96,9 +96,11 @@ def gen_user_reproduce(vuln_schema: dict) -> str:
     return out_file
 
 
-def gen_bzImage(kernel_template: dict, vuln: dict, use_configfile: bool = False) -> str:
+def gen_bzImage(
+    kernel_template: dict, trigger: dict, use_configfile: bool = False
+) -> str:
     """
-    if use_configfile: download configfile
+    if use_configfile: download configfile, write build.sh
 
     else: download bzImage
 
@@ -111,14 +113,13 @@ def gen_bzImage(kernel_template: dict, vuln: dict, use_configfile: bool = False)
         str: dockerfile snippet for bzImage
     """
     img = ""
-    trigger = vuln["trigger"]
-    if not use_configfile and "bzImage" in trigger:
-        img += f"RUN wget -O bzImage.xz '{trigger['bzImage']}'\n"
-        img += "RUN unxz bzImage.xz\n"
-    elif "configfile" in trigger:
+    if use_configfile:
         # mount local source code (/root/linux) rather than clone it into docker, so do not call soft_gen()
         img += f"RUN wget -O .config '{trigger['configfile']}'\n"
         img += gen_build(kernel_template)
+    else:
+        img += f"RUN wget -O bzImage.xz '{trigger['bzImage']}'\n"
+        img += "RUN unxz bzImage.xz\n"
     return img
 
 
@@ -157,7 +158,7 @@ def gen_kernel_reproduce(vuln_schema: dict, use_configfile: bool = False) -> str
     out_file = ""
     out_file += "FROM jingyisong/kernel_bug_reproduce:bullseye\n"
     out_file += "WORKDIR /root\n"
-    out_file += gen_bzImage(kernel_template, vuln_schema, use_configfile)
+    out_file += gen_bzImage(kernel_template, vuln_schema["trigger"], use_configfile)
     out_file += gen_poc(vuln_schema["trigger"], True)
     out_file += 'CMD ["bash"]\n'
 
