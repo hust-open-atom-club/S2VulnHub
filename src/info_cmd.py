@@ -1,8 +1,8 @@
 import re
 import subprocess
+from typing import List
 
 import requests
-from typing import List
 
 
 def get_raw_arch(app_name: str) -> str | None:

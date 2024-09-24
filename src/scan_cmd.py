@@ -1,12 +1,12 @@
 import subprocess
 import time
+
 import docker
 import git
-
 from rich.console import Console
 
 from info_cmd import list_tags
-from repro_cmd import gen_user_reproduce, gen_kernel_reproduce
+from repro_cmd import gen_kernel_reproduce, gen_user_reproduce
 from utils import (
     add_user_to_docker_group,
     check_docker_permission,

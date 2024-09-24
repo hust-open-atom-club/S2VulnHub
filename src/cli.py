@@ -2,12 +2,11 @@
 
 import argparse
 import json
-import os
 from pprint import pprint
 
 from info_cmd import get_build_arch, get_depend, get_raw, list_tags
 from repro_cmd import gen_kernel_reproduce, gen_user_reproduce, get_template
-from scan_cmd import scan_version, kernel_scan_version
+from scan_cmd import kernel_scan_version, scan_version
 from utils import logger
 from validate_cmd import validate_software, validate_vuln
 
@@ -101,19 +100,14 @@ if __name__ == "__main__":
         if args.kernel:
             with open(f"../data/kernel_bug/{args.CVE}.json", "r") as f:
                 schema = json.loads(f.read())
-            if args.target_tags or "bzImage" not in schema["trigger"]:
-                if not args.kpath:
-                    raise Exception("Please specify the path to the kernel source code")
-                elif not os.path.exists(args.kpath):
-                    raise Exception("local linux source code path is not valid")
             kernel_scan_version(
-                schema, args.target_tags if args.target_tags else None, args.kpath
+                schema, args.target_tags, args.kpath
             )
 
         else:
             with open(f"../data/user_cve/{args.CVE}.json", "r") as f:
                 schema = json.loads(f.read())
-            scan_version(schema, args.target_tags if args.target_tags else None)
+            scan_version(schema, args.target_tags)
     elif args.command == "info":
         if args.raw:
             get_raw(args.app)

@@ -1,6 +1,7 @@
 import os
 from typing import Tuple
 from urllib.parse import urlparse
+
 from utils import logger
 
 
