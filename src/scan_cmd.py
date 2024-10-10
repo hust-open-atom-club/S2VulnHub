@@ -1,4 +1,5 @@
 import os
+import re
 import subprocess
 import time
 
@@ -177,6 +178,103 @@ def build_bzImage(container, commit_id: str) -> bool:
     return False
 
 
+def check_bug(container) -> bool:
+    """check if the kernel has bug by reading vm.log
+
+    Args:
+        container (_type_): kernel container
+
+    Returns:
+        bool: True means the kernel has bug
+    """
+
+    def compile_regex(pattern):
+        pattern = pattern.replace("{{ADDR}}", "0x[0-9a-f]+")
+        pattern = pattern.replace("{{PC}}", "\\[\\<?(?:0x)?[0-9a-f]+\\>?\\]")
+        pattern = pattern.replace("{{FUNC}}", "([a-zA-Z0-9_]+)(?:\\.|\\+)")
+        pattern = pattern.replace("{{SRC}}", "([a-zA-Z0-9-_/.]+\\.[a-z]+:[0-9]+)")
+        return re.compile(pattern)
+
+    patterns = [
+        compile_regex(
+            r"BUG: KASAN: ([a-z\\-]+) in {{FUNC}}(?:.*\\n)+?.*(Read|Write) (?:of size|at addr) (?:[0-9a-f]+)"
+        ),
+        compile_regex(
+            r"BUG: KASAN: ([a-z\\-]+) in {{FUNC}}(?:.*\\n)+?.*(Read|Write) (?:of size|at addr) (?:[0-9a-f]+)"
+        ),
+        compile_regex(
+            r"BUG: KASAN: (?:double-free or invalid-free|double-free|invalid-free) in {{FUNC}}"
+        ),
+        compile_regex(
+            r"BUG: KASAN: ([a-z\\-]+) on address(?:.*\\n)+?.*(Read|Write) of size ([0-9]+)"
+        ),
+        compile_regex(r"BUG: KASAN: (.*)"),
+        compile_regex(r"BUG: KASAN:	"),
+        compile_regex(r"BUG: KMSAN: (.*)"),
+        compile_regex(r"BUG: KFENCE: (.*)"),
+        compile_regex(
+            r"BUG: (?:unable to handle kernel NULL pointer dereference|kernel NULL pointer dereference|Kernel NULL pointer dereference)"
+        ),
+        compile_regex(r"KASAN: (.*)"),
+        re.compile(r"BUG: KASAN: (.*)"),
+        re.compile(r": Permission denied"),
+        re.compile(
+            r"^([a-zA-Z0-9_\-/.]+):[0-9]+:([0-9]+:)?.*(error|invalid|fatal|wrong)"
+        ),
+        re.compile(r"FAILED unresolved symbol"),
+        re.compile(r"No rule to make target"),
+        re.compile(r": not found"),
+        re.compile(r": final link failed: "),
+        re.compile(r"collect2: error: "),
+        re.compile(r"(ERROR|FAILED): Build did NOT complete"),
+        # WARNING: CPU: 0 PID: 6148 at net/sched/sch_qfq.c:1003 qfq_dequeue+0x3bc/0x790
+        re.compile(
+            r"WARNING: CPU: [0-9]+ PID: [0-9]+ at ([a-zA-Z0-9_\-/.]+):[0-9]+ ([a-zA-Z0-9_]+)\+0x[0-9a-f]+/0x[0-9a-f]+"
+        ),
+        # kernel BUG at net/core/skbuff.c:2812!
+        re.compile(r"kernel BUG at ([a-zA-Z0-9_\-/.]+):[0-9]+"),
+        re.compile(r"WARNING: possible circular locking dependency detected"),
+        re.compile(r"UBSAN: array-index-out-of-bounds in"),
+        re.compile(r"UBSAN: Undefined behaviour in"),
+        re.compile(r"UBSAN:"),
+        re.compile(r"BUG: .*stack guard page was hit at"),
+        re.compile(r"WARNING: .*lib/debugobjects\\.c.* (?:debug_print|debug_check)"),
+        # WARNING: possible circular locking dependency detected
+        re.compile(r"WARNING: possible circular locking dependency detected"),
+        re.compile(r"FAULT_INJECTION: forcing a failure"),
+        re.compile(r"WARNING: held lock freed!"),
+        re.compile(r": error: "),
+        re.compile(r"Error: "),
+        re.compile(r"ERROR: "),
+        re.compile(r": fatal error: "),
+        re.compile(r": undefined reference to"),
+        re.compile(r": multiple definition of"),
+    ]
+
+    bits, _ = container.get_archive("/root/vm.log")
+    with open("./tmp.tar", "wb") as f:
+        for chunk in bits:
+            f.write(chunk)
+    subprocess.Popen(["tar", "-xf", "tmp.tar"])
+
+    try:
+        with open("vm.log", "r") as f:
+            content = f.read()
+            for pattern in patterns:
+                res = pattern.search(content)
+                if res:
+                    # console.log(f"[*] {res} matches {pattern}")
+                    # console.log("Successfully matched the regular expression")
+                    return True
+
+        # console.log("Failed to match to regular expression")
+        return False
+
+    except FileNotFoundError:
+        # console.log(f"file {filename} not found.")
+        return False
+
+
 def kernel_build_and_run(
     vuln_schema: dict, commit_id: str = None, linux_path: str = None
 ) -> bool:
@@ -282,8 +380,6 @@ def kernel_build_and_run(
     # if tty = False, line will not be a complete line
     # lead to docker log empty
     vm_log = kernel_container.exec_run("./startvm", stream=True, tty=True)
-    # XXX: 每个漏洞的err_msg不一样
-    err_msg = "BUG: "
     for line in vm_log.output:
         decode_line = line.decode("utf-8", errors="ignore")
         # logger.info(decode_line)
@@ -296,11 +392,10 @@ def kernel_build_and_run(
                 "docker exec -it `docker ps -a --filter ancestor=testrepo -q | head -n 1` bash trigger.sh",
                 shell=True,
             )
-            time.sleep(5)  # wait a little to print more crash info
-        # TODO: how to test if kernel is not vulnerable
-        if err_msg in decode_line:
-            kernel_container.stop()
-            return True
+            time.sleep(10)  # wait a little to finish poc
+            break
+
+    return check_bug(kernel_container)
 
 
 def kernel_scan_version(
