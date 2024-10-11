@@ -52,6 +52,27 @@ def build_bzImage(container, commit_id: str) -> bool:
     return False
 
 
+def read_vm_log(container) -> str:
+    """read vm.log from container
+
+    Args:
+        container (_type_): kernel container
+
+    Returns:
+        str: content of vm.log
+    """
+    bits, _ = container.get_archive("/root/vm.log")
+    with open("./tmp.tar", "wb") as f:
+        for chunk in bits:
+            f.write(chunk)
+    subprocess.Popen(["tar", "-xf", "tmp.tar"])
+    time.sleep(1)  # wait a little for tar finish
+
+    with open("vm.log", "r") as f:
+        content = f.read()
+        return content
+
+
 def check_bug(container) -> bool:
     """check if the kernel has bug by reading vm.log
 
@@ -125,24 +146,18 @@ def check_bug(container) -> bool:
         re.compile(r": multiple definition of"),
     ]
 
-    bits, _ = container.get_archive("/root/vm.log")
-    with open("./tmp.tar", "wb") as f:
-        for chunk in bits:
-            f.write(chunk)
-    subprocess.Popen(["tar", "-xf", "tmp.tar"])
-
-    try:
-        with open("vm.log", "r") as f:
-            content = f.read()
+    for i in range(20):
+        # test if vm finish start every 2+1 seconds for 20 times
+        time.sleep(2)
+        try:
+            content = read_vm_log(container)
             for pattern in patterns:
                 res = pattern.search(content)
                 if res:
                     return True
-
-        return False
-
-    except FileNotFoundError:
-        return False
+        except FileNotFoundError:
+            return False
+    return False
 
 
 def kernel_build_and_run(
@@ -247,23 +262,22 @@ def kernel_build_and_run(
             exit(1)
 
     logger.info("starting qemu in docker...")
-    # if tty = False, line will not be a complete line
     # lead to docker log empty
-    vm_log = kernel_container.exec_run("./startvm", stream=True, tty=True)
-    for line in vm_log.output:
-        decode_line = line.decode("utf-8", errors="ignore")
-        # logger.info(decode_line)
-        print(decode_line, end="")
-        # XXX: 输出有可能被截断导致字符串检测失败
-        if "login:" in decode_line:
-            logger.info("running poc...")
-            # TODO: use docker-py
+    subprocess.Popen(["docker", "exec", "-it", kernel_container.id, "./startvm"])
+    success_start = False
+    for i in range(20):
+        # test if vm finish start every 5+1 seconds for 20 times
+        time.sleep(5)
+        content = read_vm_log(kernel_container)
+        if "login:" in content:
             subprocess.Popen(
-                "docker exec -it `docker ps -a --filter ancestor=testrepo -q | head -n 1` bash trigger.sh",
-                shell=True,
+                ["docker", "exec", "-it", kernel_container.id, "bash", "trigger.sh"]
             )
-            time.sleep(10)  # wait a little to finish poc
+            success_start = True
             break
+    if not success_start:
+        logger.warning("start vm failed")
+        exit(1)
 
     return check_bug(kernel_container)
 
