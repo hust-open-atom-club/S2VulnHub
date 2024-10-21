@@ -3,3 +3,5 @@ Dockerfile
 myscripts
 .vscode
 .pdm-python
+*.tar
+vm.log

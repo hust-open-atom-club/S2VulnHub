@@ -5,8 +5,9 @@ import json
 from pprint import pprint
 
 from info_cmd import get_build_arch, get_depend, get_raw, list_tags
+from kernel_scan_cmd import kernel_scan_version
 from repro_cmd import gen_kernel_reproduce, gen_user_reproduce, get_template
-from scan_cmd import kernel_scan_version, scan_version
+from scan_cmd import scan_version
 from utils import logger
 from validate_cmd import validate_software, validate_vuln
 
@@ -100,9 +101,7 @@ if __name__ == "__main__":
         if args.kernel:
             with open(f"../data/kernel_bug/{args.CVE}.json", "r") as f:
                 schema = json.loads(f.read())
-            kernel_scan_version(
-                schema, args.target_tags, args.kpath
-            )
+            kernel_scan_version(schema, args.target_tags, args.kpath)
 
         else:
             with open(f"../data/user_cve/{args.CVE}.json", "r") as f:
