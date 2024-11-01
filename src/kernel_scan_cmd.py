@@ -220,6 +220,7 @@ def kernel_build_and_run(
         exit(1)
 
     # generate dockerfile and build docker image
+    logger.info("building docker image...")
     out_file = gen_kernel_reproduce(vuln_schema, True if commit_id else False)
     with open("../data/kernel_dockerfile/Dockerfile", "w") as f:
         f.write(out_file)
@@ -236,6 +237,7 @@ def kernel_build_and_run(
         exit(1)
 
     # start container and get the container
+    logger.info("starting docker container...")
     if commit_id:
         subprocess.Popen(
             f"docker run -i --device=/dev/kvm --rm -v {linux_path}:/root/linux:Z testrepo",
@@ -262,6 +264,7 @@ def kernel_build_and_run(
             exit(1)
 
     logger.info("starting qemu in docker...")
+    time.sleep(1)
     # lead to docker log empty
     subprocess.Popen(["docker", "exec", "-it", kernel_container.id, "./startvm"])
     success_start = False
