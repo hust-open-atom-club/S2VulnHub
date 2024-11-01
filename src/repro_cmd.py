@@ -118,8 +118,15 @@ def gen_bzImage(
         img += f"RUN wget -O .config '{trigger['configfile']}'\n"
         img += gen_build(kernel_template)
     else:
-        img += f"RUN wget -O bzImage.xz '{trigger['bzImage']}'\n"
-        img += "RUN unxz bzImage.xz\n"
+        img_name = trigger["bzImage"].split("/")[-1].split(".")[0]
+        img_ext = trigger["bzImage"].split("/")[-1].replace(img_name, "")
+        if img_ext == ".xz":
+            img += f"RUN wget -O bzImage.xz '{trigger['bzImage']}'\n"
+            img += "RUN unxz bzImage.xz\n"
+        elif img_ext == ".gz.xz":
+            img += f"RUN wget -O bzImage.gz.xz '{trigger['bzImage']}'\n"
+            img += "RUN unxz bzImage.gz.xz\n"
+            img += "RUN gzip -d bzImage.gz\n"
     return img
 
 
