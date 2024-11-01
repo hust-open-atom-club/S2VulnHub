@@ -39,7 +39,9 @@ def add_user_to_docker_group():
         username = getpass.getuser()
         logger.info(f"尝试将用户 {username} 加入 docker 组...")
         subprocess.run(["sudo", "usermod", "-aG", "docker", username], check=True)
-        logger.info(f"用户 {username} 已成功加入 docker 组。请重新登录以应用组更改。")
+        logger.info(
+            f"用户 {username} 已成功加入 docker 组。请执行 newgrp docker 重新登录。"
+        )
     except subprocess.CalledProcessError as e:
         logger.warning(f"添加用户到 docker 组失败: {e}")
 
