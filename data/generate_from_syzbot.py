@@ -76,8 +76,11 @@ def build_syzbot_json():
         if os.path.exists("{}/{}.json".format(storage_dir, extid)) :
             print("{}/{}.json".format(storage_dir, extid))
             continue
-        commitid, cpoc, config, bzimage = crawl_information(extid)
-
+        try :
+            commitid, cpoc, config, bzimage = crawl_information(extid)
+        except :
+            print("error occurs while generating {}.json".format(extid))
+            continue
         dict_ = {
                 "schema_version": "1.0",
                 "id": extid,

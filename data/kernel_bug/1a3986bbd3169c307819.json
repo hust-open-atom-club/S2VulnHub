@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "id": "1a3986bbd3169c307819",
+  "category": "kernel",
+  "version": "43db1e03c086ed20cc75808d3f45e780ec4ca26e",
+  "trigger": {
+    "poc": "https://syzkaller.appspot.com//text?tag=ReproC&x=12272ea5980000",
+    "bzImage": "https://storage.googleapis.com/syzbot-assets/b371a4faf10a/bzImage-43db1e03.xz",
+    "configfile": "https://syzkaller.appspot.com//text?tag=KernelConfig&x=3456bae478301dc8"
+  }
+}
