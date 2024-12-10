@@ -36,6 +36,8 @@ def build_bzImage(container, commit_id: str) -> bool:
         "git config --global --add safe.directory /root/linux",  # fatal: detected dubious ownership in repository at '/root/linux'
         "cp ../build.sh .",
         f"git checkout {commit_id}",
+        "sed -i 's/CONFIG_DEBUG_INFO=y/CONFIG_DEBUG_INFO=n/' .config",
+        "make olddefconfig",
         "bash build.sh",
     ]
 
