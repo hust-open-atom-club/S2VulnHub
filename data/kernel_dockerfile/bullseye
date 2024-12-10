@@ -1,3 +1,4 @@
+# docker build -f {repo_path}}/kernel_dockerfile/bullseye -t bullseye . --no-cache
 FROM ubuntu:22.04
 RUN sed -i "s@http://.*archive.ubuntu.com@http://mirrors.ustc.edu.cn/@g" /etc/apt/sources.list
 RUN sed -i "s@http://.*security.ubuntu.com@http://mirrors.ustc.edu.cn/@g" /etc/apt/sources.list

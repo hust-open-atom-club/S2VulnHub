@@ -54,9 +54,7 @@ def gen_poc(trigger: dict, kernel: bool = False) -> str:
             poc += f"RUN wget '{trigger['poc']}'\n"
     if "guide" not in trigger:
         # defualt guide for syzbot
-        trigger["guide"] = (
-            "gcc poc.c -lpthread -static -o poc\n./scptovm poc\nif ! grep -q 'bash -l' connectvm; then\n\tsed -i '$s/$/ \"echo executing poc...; \\.\\/poc; bash -l\"/' connectvm\nfi\n./connectvm"
-        )
+        trigger["guide"] = "gcc poc.c -lpthread -static -o poc\n"
     poc += f'RUN echo -n {base64.b64encode(str.encode(trigger["guide"])).decode()} | base64 -d > trigger.sh\n'
     return poc
 
@@ -155,7 +153,7 @@ def gen_kernel_reproduce(vuln_schema: dict, use_configfile: bool = False) -> str
         vuln_schema (dict): kernel vulnerability schema
 
     Returns:
-        str: complete kernel dockerfile end with 'CMD ["./startvm"]'
+        str: complete kernel dockerfile end with 'CMD ["bash"]'
     """
     with open(f"../data/apps/kernel.json", "r") as f:
         kernel_template = json.loads(f.read())

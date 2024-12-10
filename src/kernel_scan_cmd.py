@@ -238,14 +238,15 @@ def kernel_build_and_run(
 
     # start container and get the container
     logger.info("starting docker container...")
+    script_path = os.path.abspath("../scripts")
     if commit_id:
         subprocess.Popen(
-            f"docker run -i --device=/dev/kvm --rm -v {linux_path}:/root/linux:Z testrepo",
+            f"docker run -i --device=/dev/kvm --rm -v {linux_path}:/root/linux -v {script_path}:/root/scripts testrepo",
             shell=True,
         )
     else:
         subprocess.Popen(
-            f"docker run -i --device=/dev/kvm --rm testrepo",
+            f"docker run -i --device=/dev/kvm --rm -v {script_path}:/root/scripts testrepo",
             shell=True,
         )
 
@@ -266,7 +267,9 @@ def kernel_build_and_run(
     logger.info("starting qemu in docker...")
     time.sleep(1)
     # lead to docker log empty
-    subprocess.Popen(["docker", "exec", "-it", kernel_container.id, "./startvm"])
+    subprocess.Popen(
+        ["docker", "exec", "-it", kernel_container.id, "./scripts/startvm"]
+    )
     success_start = False
     for i in range(20):
         # test if vm finish start every 5+1 seconds for 20 times
@@ -274,7 +277,7 @@ def kernel_build_and_run(
         content = read_vm_log(kernel_container)
         if "login:" in content:
             subprocess.Popen(
-                ["docker", "exec", "-it", kernel_container.id, "bash", "trigger.sh"]
+                ["docker", "exec", "-it", kernel_container.id, "./scripts/connectvm"]
             )
             success_start = True
             break
