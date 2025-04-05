@@ -8,7 +8,7 @@ from info_cmd import get_build_arch, get_depend, get_raw, list_tags
 from kernel_scan_cmd import kernel_scan_version
 from repro_cmd import gen_kernel_reproduce, gen_user_reproduce, get_template
 from scan_cmd import scan_version
-from utils import logger
+from utils import add_user_to_docker_group, check_docker_permission, logger
 from validate_cmd import validate_software, validate_vuln
 
 if __name__ == "__main__":
@@ -98,6 +98,9 @@ if __name__ == "__main__":
             logger.error(e)
 
     elif args.command == "scan":
+        if not check_docker_permission():
+            add_user_to_docker_group()
+            exit(1)
         if args.kernel:
             with open(f"../data/kernel_bug/{args.CVE}.json", "r") as f:
                 schema = json.loads(f.read())

@@ -5,8 +5,6 @@ from rich.console import Console
 from info_cmd import list_tags
 from repro_cmd import gen_user_reproduce
 from utils import (
-    add_user_to_docker_group,
-    check_docker_permission,
     get_template,
     logger,
 )
@@ -23,9 +21,6 @@ def build_and_run(vuln_schema: dict, version: str = None) -> bool:
     Returns:
         bool: if the commit or package is vulnerable. True means vulnerable.
     """
-    if not check_docker_permission():
-        add_user_to_docker_group()
-        exit(1)
 
     if version:
         # revise version info
